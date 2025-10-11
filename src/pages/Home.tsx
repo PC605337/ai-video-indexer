@@ -32,7 +32,7 @@ export default function Home() {
         <div className="absolute inset-0">
           <img
             src={heroBg}
-            alt="Toyota AI Background"
+            alt="AI Platform Background"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
@@ -46,13 +46,13 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-6xl md:text-8xl font-bold mb-6">
-              <span className="gradient-text">Toyota AI</span>
+              <span className="gradient-text">AI Indexer</span>
               <br />
-              <span className="text-foreground">Indexer Platform</span>
+              <span className="text-foreground">Enterprise Platform</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
               The world's most intelligent media indexing and governance system.
-              Built for Toyota and Lexus.
+              Built for enterprise media management.
             </p>
             <div className="flex gap-4 justify-center">
               <Button size="lg" className="text-lg px-8 animate-glow" onClick={() => navigate('/dashboard')}>

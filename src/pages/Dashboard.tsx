@@ -210,7 +210,7 @@ export default function Dashboard() {
                     eta: "12 min",
                   },
                   {
-                    name: "Toyota Manufacturing Plant - Texas",
+                    name: "Manufacturing Plant - Texas",
                     type: "photo",
                     progress: 92,
                     eta: "3 min",

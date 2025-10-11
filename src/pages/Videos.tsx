@@ -17,10 +17,10 @@ const videos = [
   },
   {
     id: 2,
-    title: "Toyota GR Supra - Track Day",
+    title: "GR Supra - Track Day",
     thumbnail: "https://images.unsplash.com/photo-1619405399517-d7fce0f13302?w=800&auto=format&fit=crop",
     duration: "8:15",
-    tags: ["Toyota", "GR Supra", "Performance", "Track"],
+    tags: ["Sports Car", "GR Supra", "Performance", "Track"],
   },
   {
     id: 3,
@@ -41,7 +41,7 @@ const videos = [
     title: "Prius Prime - Hybrid Technology",
     thumbnail: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop",
     duration: "6:18",
-    tags: ["Toyota", "Prius", "Hybrid", "Tech"],
+    tags: ["Hybrid", "Prius", "Electric", "Tech"],
   },
   {
     id: 6,
@@ -52,10 +52,10 @@ const videos = [
   },
   {
     id: 7,
-    title: "Toyota Tacoma - Capability Showcase",
+    title: "Tacoma - Capability Showcase",
     thumbnail: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop",
     duration: "5:30",
-    tags: ["Toyota", "Tacoma", "Truck", "Capability"],
+    tags: ["Pickup", "Tacoma", "Truck", "Capability"],
   },
   {
     id: 8,

@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Toyota Cinematic Design System - Dark Theme Primary */
+    /* Cinematic Design System - Dark Theme Primary */
     --background: 240 7% 11%;
     --foreground: 0 0% 100%;
 
@@ -18,7 +18,7 @@ All colors MUST be HSL.
     --popover: 240 7% 8%;
     --popover-foreground: 0 0% 100%;
 
-    /* Toyota Red as primary */
+    /* Brand Red as primary */
     --primary: 355 92% 48%;
     --primary-foreground: 0 0% 100%;
 

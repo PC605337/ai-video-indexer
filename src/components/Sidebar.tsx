@@ -31,10 +31,10 @@ export const Sidebar = () => {
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-border px-6">
-          <img src={toyotaIcon} alt="Toyota" className="h-8 w-8" />
+          <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8" />
           <div>
-            <h1 className="text-lg font-bold gradient-text">Toyota AI</h1>
-            <p className="text-xs text-muted-foreground">Indexer Platform</p>
+            <h1 className="text-lg font-bold gradient-text">AI Indexer</h1>
+            <p className="text-xs text-muted-foreground">Enterprise Platform</p>
           </div>
         </div>
 
@@ -68,7 +68,7 @@ export const Sidebar = () => {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium">Super Admin</p>
-              <p className="text-xs text-muted-foreground">admin@toyota.com</p>
+              <p className="text-xs text-muted-foreground">admin@enterprise.com</p>
             </div>
           </div>
         </div>
