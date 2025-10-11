@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { MediaCard } from "@/components/MediaCard";
@@ -67,6 +68,7 @@ const videos = [
 ];
 
 export default function Videos() {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   return (
@@ -137,15 +139,20 @@ export default function Videos() {
               }
             >
               {videos.map((video, index) => (
-                <MediaCard
-                  key={video.id}
-                  title={video.title}
-                  thumbnail={video.thumbnail}
-                  duration={video.duration}
-                  type="video"
-                  tags={video.tags}
-                  index={index}
-                />
+                <div 
+                  key={video.id} 
+                  onClick={() => navigate(`/videos/${video.id}`)} 
+                  className="cursor-pointer"
+                >
+                  <MediaCard
+                    title={video.title}
+                    thumbnail={video.thumbnail}
+                    duration={video.duration}
+                    type="video"
+                    tags={video.tags}
+                    index={index}
+                  />
+                </div>
               ))}
             </div>
 

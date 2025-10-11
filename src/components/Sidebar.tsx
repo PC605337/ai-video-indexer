@@ -9,6 +9,8 @@ import {
   BarChart3,
   Shield,
   Cpu,
+  Mic,
+  Volume2,
 } from "lucide-react";
 import toyotaIcon from "@/assets/toyota-icon.png";
 
@@ -18,8 +20,8 @@ const menuItems = [
   { icon: Image, label: "Photo Library", path: "/photos" },
   { icon: Upload, label: "Upload", path: "/upload" },
   { icon: BarChart3, label: "Analytics", path: "/analytics" },
-  { icon: Cpu, label: "AI Governance", path: "/ai-governance" },
-  { icon: Shield, label: "Security", path: "/security" },
+  { icon: Volume2, label: "Text-to-Speech", path: "/tts" },
+  { icon: Mic, label: "Speech-to-Text", path: "/stt" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
