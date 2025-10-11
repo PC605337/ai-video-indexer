@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Shield, Zap } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -23,6 +23,7 @@ const features = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -54,16 +55,12 @@ export default function Home() {
               Built for Toyota and Lexus.
             </p>
             <div className="flex gap-4 justify-center">
-              <Button asChild size="lg" className="text-lg px-8 animate-glow">
-                <Link to="/dashboard">
-                  Launch Platform
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+              <Button size="lg" className="text-lg px-8 animate-glow" onClick={() => navigate('/dashboard')}>
+                Launch Platform
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button asChild size="lg" variant="outline" className="text-lg px-8">
-                <Link to="/videos">
-                  Explore Library
-                </Link>
+              <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigate('/videos')}>
+                Explore Library
               </Button>
             </div>
           </motion.div>
