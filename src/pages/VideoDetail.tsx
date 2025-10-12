@@ -92,261 +92,263 @@ export default function VideoDetail() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        
-        <main className="flex-1 overflow-auto">
-          <div className="p-6">
-            {/* Back Button */}
-            <Button
-              variant="ghost"
-              className="mb-4"
-              onClick={() => navigate("/videos")}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Videos
-            </Button>
-
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Video Player Section */}
-              <div className="lg:col-span-2 space-y-4">
-                <div className="relative aspect-video bg-black rounded-lg overflow-hidden group">
-                  <img
-                    src={video.url}
-                    alt={video.title}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Video Controls Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="flex items-center gap-4 mb-4">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="text-white hover:bg-white/20"
-                          onClick={() => setIsPlaying(!isPlaying)}
-                        >
-                          {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-                        </Button>
-                        <div className="flex-1 h-1 bg-white/30 rounded-full">
-                          <div className="h-full w-1/3 bg-primary rounded-full" />
-                        </div>
-                        <span className="text-white text-sm">04:15 / {video.duration}</span>
-                        <Volume2 className="h-5 w-5 text-white" />
-                        <Maximize className="h-5 w-5 text-white" />
-                      </div>
+      <main className="flex-1 ml-64 pt-16 p-6">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          className="mb-4"
+          onClick={() => navigate("/videos")}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Videos
+        </Button>
+        <div className="grid lg:grid-cols-[1fr_450px] gap-6">
+          {/* Video Player Section */}
+          <div className="space-y-4">
+            <div className="relative aspect-video bg-black rounded-lg overflow-hidden group">
+              <img
+                src={video.url}
+                alt={video.title}
+                className="w-full h-full object-cover"
+              />
+              
+              {/* Video Controls Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-white hover:bg-white/20"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                    >
+                      {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                    </Button>
+                    <div className="flex-1 h-1 bg-white/30 rounded-full">
+                      <div className="h-full w-1/3 bg-primary rounded-full" />
                     </div>
-                  </div>
-                </div>
-
-                {/* Video Info */}
-                <div className="glass rounded-lg p-6">
-                  <h1 className="text-2xl font-bold mb-2">{video.title}</h1>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {video.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {video.uploadDate}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Eye className="h-4 w-4" />
-                      1,234 views
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
+                    <span className="text-white text-sm">04:15 / {video.duration}</span>
+                    <Volume2 className="h-5 w-5 text-white" />
+                    <Maximize className="h-5 w-5 text-white" />
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* AI Insights Panel - Azure Style */}
-              <div className="glass rounded-lg p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  <h2 className="text-xl font-bold">AI Insights</h2>
-                </div>
-
-                <Tabs defaultValue="transcript" className="w-full">
-                  <TabsList className="grid grid-cols-3 mb-4">
-                    <TabsTrigger value="transcript">
-                      <FileText className="h-4 w-4 mr-1" />
-                      Transcript
-                    </TabsTrigger>
-                    <TabsTrigger value="insights">
-                      <BarChart3 className="h-4 w-4 mr-1" />
-                      Analysis
-                    </TabsTrigger>
-                    <TabsTrigger value="people">
-                      <Users className="h-4 w-4 mr-1" />
-                      People
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="transcript">
-                    <ScrollArea className="h-[600px] pr-4">
-                      <div className="space-y-4">
-                        {insights.transcript.map((item, idx) => (
-                          <div key={idx} className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-primary font-mono">{item.time}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {item.speaker}
-                              </Badge>
-                            </div>
-                            <p className="text-sm">{item.text}</p>
-                            {idx < insights.transcript.length - 1 && (
-                              <Separator className="mt-3" />
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-
-                  <TabsContent value="insights">
-                    <ScrollArea className="h-[600px] pr-4">
-                      <div className="space-y-6">
-                        {/* Keywords */}
-                        <div>
-                          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                            <Tag className="h-4 w-4" />
-                            Keywords
-                          </h3>
-                          <div className="flex flex-wrap gap-2">
-                            {insights.keywords.map((keyword) => (
-                              <Badge key={keyword} variant="secondary">
-                                {keyword}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-
-                        <Separator />
-
-                        {/* Topics */}
-                        <div>
-                          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                            <MessageSquare className="h-4 w-4" />
-                            Topics
-                          </h3>
-                          <div className="space-y-2">
-                            {insights.topics.map((topic) => (
-                              <div key={topic} className="text-sm">
-                                • {topic}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <Separator />
-
-                        {/* Sentiments */}
-                        <div>
-                          <h3 className="text-sm font-semibold mb-3">Sentiment Analysis</h3>
-                          <div className="space-y-2">
-                            {insights.sentiments.map((item) => (
-                              <div key={item.sentiment} className="flex items-center gap-2">
-                                <span className="text-sm w-20">{item.sentiment}</span>
-                                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full bg-primary"
-                                    style={{ width: `${item.percentage}%` }}
-                                  />
-                                </div>
-                                <span className="text-sm text-muted-foreground w-12 text-right">
-                                  {item.percentage}%
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <Separator />
-
-                        {/* Scenes */}
-                        <div>
-                          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            Detected Scenes
-                          </h3>
-                          <div className="space-y-3">
-                            {insights.scenes.map((scene, idx) => (
-                              <div key={idx} className="text-sm space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-primary font-mono">{scene.time}</span>
-                                  <Badge variant="outline" className="text-xs">
-                                    {scene.duration}
-                                  </Badge>
-                                </div>
-                                <p className="text-muted-foreground">{scene.description}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <Separator />
-
-                        {/* OCR Text */}
-                        <div>
-                          <h3 className="text-sm font-semibold mb-3">Detected Text (OCR)</h3>
-                          <div className="space-y-2">
-                            {insights.ocr.map((item, idx) => (
-                              <div key={idx} className="flex items-center gap-2 text-sm">
-                                <span className="text-primary font-mono">{item.time}</span>
-                                <span className="text-muted-foreground">•</span>
-                                <span>{item.text}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-
-                  <TabsContent value="people">
-                    <ScrollArea className="h-[600px] pr-4">
-                      <div className="space-y-4">
-                        {insights.faces.map((face, idx) => (
-                          <div key={idx} className="flex items-center gap-4 p-4 glass rounded-lg">
-                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Users className="h-6 w-6 text-primary" />
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold">{face.name}</h4>
-                              <div className="text-sm text-muted-foreground">
-                                {face.appearances} appearances
-                              </div>
-                            </div>
-                            <Badge variant="secondary">
-                              {Math.round(face.confidence * 100)}% confidence
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-                </Tabs>
+            {/* Video Info */}
+            <div className="glass rounded-lg p-6">
+              <h1 className="text-2xl font-bold mb-2">{video.title}</h1>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {video.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                <span className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  {video.uploadDate}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  1,234 views
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </Button>
               </div>
             </div>
           </div>
-        </main>
-      </div>
+
+          {/* AI Insights Panel - Azure AI Video Indexer Style */}
+          <div className="glass rounded-lg overflow-hidden border-l">
+            <div className="bg-secondary/30 p-4 border-b">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-bold">Insights</h2>
+              </div>
+            </div>
+
+            <Tabs defaultValue="transcript" className="w-full">
+              <TabsList className="w-full grid grid-cols-3 rounded-none border-b bg-transparent h-auto p-0">
+                <TabsTrigger 
+                  value="transcript" 
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Transcript</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="insights"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Insights</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="people"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">People</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="transcript" className="p-4">
+                <ScrollArea className="h-[calc(100vh-280px)]">
+                  <div className="space-y-3 pr-4">
+                    {insights.transcript.map((item, idx) => (
+                      <div key={idx} className="group hover:bg-secondary/20 p-3 rounded-lg transition-colors cursor-pointer">
+                        <div className="flex items-start gap-3">
+                          <span className="text-xs text-primary font-mono mt-1 min-w-[60px]">{item.time}</span>
+                          <div className="flex-1 space-y-1">
+                            <Badge variant="outline" className="text-xs mb-1">
+                              {item.speaker}
+                            </Badge>
+                            <p className="text-sm leading-relaxed">{item.text}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+
+              <TabsContent value="insights" className="p-4">
+                <ScrollArea className="h-[calc(100vh-280px)]">
+                  <div className="space-y-6 pr-4">
+                    {/* Keywords */}
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground uppercase tracking-wide">
+                        <Tag className="h-4 w-4" />
+                        Keywords
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {insights.keywords.map((keyword) => (
+                          <Badge key={keyword} variant="secondary" className="cursor-pointer hover:bg-primary/20">
+                            {keyword}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Topics */}
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground uppercase tracking-wide">
+                        <MessageSquare className="h-4 w-4" />
+                        Topics
+                      </h3>
+                      <div className="space-y-2">
+                        {insights.topics.map((topic) => (
+                          <div key={topic} className="flex items-start gap-2 text-sm hover:bg-secondary/20 p-2 rounded transition-colors cursor-pointer">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
+                            <span>{topic}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Sentiments */}
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Sentiment Analysis</h3>
+                      <div className="space-y-3">
+                        {insights.sentiments.map((item) => (
+                          <div key={item.sentiment}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium">{item.sentiment}</span>
+                              <span className="text-sm text-muted-foreground">{item.percentage}%</span>
+                            </div>
+                            <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-primary rounded-full transition-all"
+                                style={{ width: `${item.percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Scenes */}
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground uppercase tracking-wide">
+                        <MapPin className="h-4 w-4" />
+                        Scenes
+                      </h3>
+                      <div className="space-y-3">
+                        {insights.scenes.map((scene, idx) => (
+                          <div key={idx} className="hover:bg-secondary/20 p-3 rounded-lg transition-colors cursor-pointer">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs text-primary font-mono">{scene.time}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {scene.duration}
+                              </Badge>
+                            </div>
+                            <p className="text-sm">{scene.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* OCR Text */}
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Detected Text (OCR)</h3>
+                      <div className="space-y-2">
+                        {insights.ocr.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-3 text-sm hover:bg-secondary/20 p-2 rounded transition-colors cursor-pointer">
+                            <span className="text-primary font-mono text-xs min-w-[60px]">{item.time}</span>
+                            <span className="font-medium">{item.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+
+              <TabsContent value="people" className="p-4">
+                <ScrollArea className="h-[calc(100vh-280px)]">
+                  <div className="space-y-3 pr-4">
+                    {insights.faces.map((face, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-3 hover:bg-secondary/20 rounded-lg transition-colors cursor-pointer">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Users className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm truncate">{face.name}</h4>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{face.appearances} appearances</span>
+                            <span>•</span>
+                            <span>{Math.round(face.confidence * 100)}% confidence</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

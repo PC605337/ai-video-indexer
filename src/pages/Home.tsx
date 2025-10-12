@@ -97,7 +97,7 @@ export default function Home() {
               Powered by <span className="gradient-text">Next-Gen AI</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Combining Apple-level UX, Netflix-level storytelling, and Azure AI-level intelligence
+              Where intelligence meets human experience, stories unfold, and every connection multiplies possibility—a digital ecosystem woven for the future
             </p>
           </motion.div>
 
@@ -129,8 +129,8 @@ export default function Home() {
             {[
               { value: "2+ PB", label: "Media Library" },
               { value: "25 TB", label: "Weekly Ingestion" },
-              { value: "99.9%", label: "Accuracy" },
-              { value: "<1s", label: "Search Speed" },
+              { value: "85%", label: "Accuracy" },
+              { value: "2/sec", label: "Search" },
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}

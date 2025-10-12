@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -11,8 +11,10 @@ import {
   Cpu,
   Mic,
   Volume2,
+  CloudUpload,
 } from "lucide-react";
 import toyotaIcon from "@/assets/toyota-icon.png";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
@@ -27,17 +29,27 @@ const menuItems = [
 
 export const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 glass border-r border-border transition-smooth">
       <div className="flex h-full flex-col">
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-3 border-b border-border px-6">
-          <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8" />
-          <div>
-            <h1 className="text-lg font-bold gradient-text">AI Indexer</h1>
-            <p className="text-xs text-muted-foreground">Enterprise Platform</p>
+        {/* Logo + Upload */}
+        <div className="flex h-16 items-center justify-between border-b border-border px-6">
+          <div className="flex items-center gap-3">
+            <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8" />
+            <div>
+              <h1 className="text-lg font-bold gradient-text">AI Indexer</h1>
+              <p className="text-xs text-muted-foreground">Enterprise Platform</p>
+            </div>
           </div>
+          <Button 
+            size="icon" 
+            className="h-9 w-9 bg-primary hover:bg-primary/90"
+            onClick={() => navigate('/upload')}
+          >
+            <CloudUpload className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Navigation */}
