@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { MediaCard } from "@/components/MediaCard";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Filter, Grid, List, SlidersHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -131,25 +132,50 @@ export default function Videos() {
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                   : "space-y-4"
               }
             >
               {videos.map((video, index) => (
-                <div 
-                  key={video.id} 
+                <motion.div 
+                  key={video.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
                   onClick={() => navigate(`/videos/${video.id}`)} 
-                  className="cursor-pointer"
+                  className="group cursor-pointer"
                 >
-                  <MediaCard
-                    title={video.title}
-                    thumbnail={video.thumbnail}
-                    duration={video.duration}
-                    type="video"
-                    tags={video.tags}
-                    index={index}
-                  />
-                </div>
+                  <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border border-border shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <img 
+                      src={video.thumbnail} 
+                      alt={video.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm text-white text-xs px-2 py-1 rounded font-mono">
+                      {video.duration}
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="w-14 h-14 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-lg animate-scale-in">
+                        <svg className="w-6 h-6 text-primary-foreground ml-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                      {video.title}
+                    </h3>
+                    <div className="flex flex-wrap gap-1">
+                      {video.tags.slice(0, 2).map((tag, i) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
               ))}
             </div>
 

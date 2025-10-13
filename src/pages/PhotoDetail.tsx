@@ -204,12 +204,12 @@ const PhotoDetail = () => {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left: Image Viewer */}
-        <div className="w-[58%] bg-muted flex items-center justify-center border-r border-border overflow-auto">
+        <div className="w-[58%] bg-muted flex items-center justify-center border-r border-border overflow-auto p-4">
           <img 
             src={photoData.imageUrl} 
             alt={photoData.title}
-            style={{ transform: `scale(${zoomLevel / 100})`, transition: 'transform 0.2s' }}
-            className="max-w-full h-auto"
+            style={{ transform: `scale(${zoomLevel / 100})`, transition: 'transform 0.3s ease-out' }}
+            className="max-w-full h-auto rounded-lg shadow-2xl"
           />
         </div>
 

@@ -237,15 +237,17 @@ const VideoDetail = () => {
       {/* Main Content Area - Two Column Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left: Video Player */}
-        <div className="w-[58%] bg-black flex items-center justify-center border-r border-border">
-          <video 
-            className="w-full h-full object-contain" 
-            controls 
-            poster={videoData.thumbnailUrl}
-            src={videoData.videoUrl}
-          >
-            Your browser does not support the video tag.
-          </video>
+        <div className="w-[58%] bg-black flex items-center justify-center border-r border-border p-4">
+          <div className="w-full max-w-[1280px] aspect-video">
+            <video 
+              className="w-full h-full rounded-lg shadow-2xl object-contain" 
+              controls 
+              poster={videoData.thumbnailUrl}
+              src={videoData.videoUrl}
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
         </div>
 
         {/* Right: Insights Panel */}
