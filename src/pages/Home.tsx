@@ -27,7 +27,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-48">
         {/* Background */}
         <div className="absolute inset-0">
           <img
