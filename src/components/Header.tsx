@@ -26,10 +26,15 @@ export const Header = () => {
               <Menu className="h-5 w-5" />
             </Button>
           )}
-          <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8 shrink-0" />
-          <div>
-            <h1 className="text-lg font-bold gradient-text">AI Indexer</h1>
-            <p className="text-xs text-muted-foreground">Enterprise Platform</p>
+          <div 
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/')}
+          >
+            <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8 shrink-0" />
+            <div>
+              <h1 className="text-lg font-bold gradient-text">AI Indexer</h1>
+              <p className="text-xs text-muted-foreground">Enterprise Platform</p>
+            </div>
           </div>
         </div>
 
