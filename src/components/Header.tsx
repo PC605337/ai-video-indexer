@@ -1,4 +1,4 @@
-import { Search, Bell, User, Upload } from "lucide-react";
+import { Search, Bell, User, Upload, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -40,6 +40,13 @@ export const Header = () => {
             title="Upload"
           >
             <Upload className="h-5 w-5" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            title="Audit Trail"
+          >
+            <FileText className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon" className="relative" title="Notifications">
             <Bell className="h-5 w-5" />

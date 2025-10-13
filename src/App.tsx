@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -45,11 +45,14 @@ const App = () => {
 };
 
 const AppContent = () => {
+  const location = useLocation();
+  const showSidebar = location.pathname !== '/';
+
   return (
     <div className="min-h-screen w-full bg-background">
       <Header />
-      <Sidebar />
-      <main className="ml-64 pt-16">
+      {showSidebar && <Sidebar />}
+      <main className={showSidebar ? "ml-64 pt-16" : "pt-16"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
