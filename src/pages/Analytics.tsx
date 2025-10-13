@@ -1,4 +1,3 @@
-import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -23,9 +22,7 @@ const throughputData = [
 
 const Analytics = () => {
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 ml-64 p-8">
+    <main className="p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">Overall Model Analytics</h1>
@@ -278,7 +275,6 @@ const Analytics = () => {
           </Tabs>
         </div>
       </main>
-    </div>
   );
 };
 

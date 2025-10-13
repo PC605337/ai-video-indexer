@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -86,11 +85,9 @@ export default function Upload() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex-1 ml-64">
-        <Header />
-        <main className="pt-16 p-6">
+    <div className="flex-1">
+      <Header />
+      <main className="pt-16 p-6">
           <div className="max-w-5xl mx-auto space-y-6">
             {/* Page Header */}
             <div className="animate-fade-in-up">
@@ -257,6 +254,5 @@ export default function Upload() {
           </div>
         </main>
       </div>
-    </div>
   );
 }

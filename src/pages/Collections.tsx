@@ -1,4 +1,3 @@
-import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Calendar, Car, Building2, FileText, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -52,9 +51,7 @@ const Collections = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 ml-64 p-8">
+    <main className="p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">Collections</h1>
@@ -81,7 +78,6 @@ const Collections = () => {
           </div>
         </div>
       </main>
-    </div>
   );
 };
 

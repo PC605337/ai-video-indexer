@@ -1,4 +1,3 @@
-import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,9 +7,7 @@ import { Switch } from "@/components/ui/switch";
 
 const Settings = () => {
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 ml-64 p-8">
+    <main className="p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">Settings</h1>
@@ -60,7 +57,6 @@ const Settings = () => {
           </Card>
         </div>
       </main>
-    </div>
   );
 };
 

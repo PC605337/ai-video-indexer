@@ -1,5 +1,4 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, Grid, List } from "lucide-react";
@@ -38,9 +37,7 @@ const CollectionDetail = () => {
   const items = mockItems[slug as keyof typeof mockItems] || [];
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 ml-64 p-8">
+    <main className="p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">{collectionName}</h1>
@@ -93,7 +90,6 @@ const CollectionDetail = () => {
           </div>
         </div>
       </main>
-    </div>
   );
 };
 

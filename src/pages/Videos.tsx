@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { MediaCard } from "@/components/MediaCard";
 import { Button } from "@/components/ui/button";
@@ -72,11 +71,9 @@ export default function Videos() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex-1 ml-64">
-        <Header />
-        <main className="pt-16 p-6">
+    <div className="flex-1">
+      <Header />
+      <main className="pt-16 p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             {/* Page Header */}
             <div className="flex items-center justify-between animate-fade-in-up">
@@ -170,6 +167,5 @@ export default function Videos() {
           </div>
         </main>
       </div>
-    </div>
   );
 }

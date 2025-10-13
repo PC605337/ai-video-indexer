@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -143,12 +142,10 @@ export default function SpeechToText() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        
-        <main className="flex-1 overflow-auto p-6">
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <Header />
+      
+      <main className="flex-1 overflow-auto p-6">
           <div className="max-w-4xl mx-auto space-y-6">
             <div>
               <h1 className="text-3xl font-bold mb-2">Speech-to-Text Studio</h1>
@@ -311,6 +308,5 @@ export default function SpeechToText() {
           </div>
         </main>
       </div>
-    </div>
   );
 }

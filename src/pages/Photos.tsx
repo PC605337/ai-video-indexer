@@ -1,13 +1,10 @@
-import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Image, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const Photos = () => {
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <main className="flex-1 ml-64 p-8">
+    <main className="p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">Photo Library</h1>
@@ -41,7 +38,6 @@ const Photos = () => {
           </div>
         </div>
       </main>
-    </div>
   );
 };
 
