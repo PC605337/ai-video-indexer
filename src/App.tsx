@@ -15,6 +15,7 @@ import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import VideoDetail from "./pages/VideoDetail";
 import Videos from "./pages/Videos";
+import Dashboard from "./pages/Dashboard";
 import Photos from "./pages/Photos";
 import Upload from "./pages/Upload";
 import TextToSpeech from "./pages/TextToSpeech";
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/users" element={<Users />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/videos" element={<Videos />} />
           <Route path="/videos/:id" element={<VideoDetail />} />
           <Route path="/photos" element={<Photos />} />
