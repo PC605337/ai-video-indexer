@@ -64,18 +64,27 @@ export const Sidebar = () => {
             )}
           </div>
           
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setOpen(!open)}
-            className="h-8 w-8 shrink-0"
-          >
-            {open ? (
+          {open && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setOpen(!open)}
+              className="h-8 w-8 shrink-0"
+            >
               <ChevronLeft className="h-4 w-4" />
-            ) : (
+            </Button>
+          )}
+          
+          {!open && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setOpen(!open)}
+              className="h-8 w-8 shrink-0 absolute top-4 left-12"
+            >
               <ChevronRight className="h-4 w-4" />
-            )}
-          </Button>
+            </Button>
+          )}
         </div>
 
         {/* Navigation */}
