@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Shield, Zap } from "lucide-react";
-import { Header } from "@/components/Header";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const features = [
@@ -27,10 +26,9 @@ export default function Home() {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen">
-      <Header />
       
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden pt-16">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0">
           <img
