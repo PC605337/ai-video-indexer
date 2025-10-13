@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.speaker-diarization]
 verify_jwt = false
+
+[functions.index-youtube-video]
+verify_jwt = false
