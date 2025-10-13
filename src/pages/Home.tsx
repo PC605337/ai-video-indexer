@@ -33,9 +33,9 @@ export default function Home() {
           <img
             src={heroBg}
             alt="AI Platform Background"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-40"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background" />
         </div>
 
         {/* Content */}
