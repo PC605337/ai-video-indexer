@@ -3,21 +3,41 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Filter, Grid, List, SlidersHorizontal, Loader2 } from "lucide-react";
+import { Grid, List, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { MediaFilters } from "@/components/MediaFilters";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function Videos() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [videos, setVideos] = useState<any[]>([]);
+  const [filteredVideos, setFilteredVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalSize, setTotalSize] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("date-desc");
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
+  const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     loadVideos();
   }, []);
+
+  useEffect(() => {
+    filterAndSortVideos();
+  }, [videos, dateRange, selectedPeople, sortBy]);
 
   const loadVideos = async () => {
     try {
@@ -31,13 +51,18 @@ export default function Videos() {
       if (error) throw error;
 
       if (data) {
-        setVideos(data.map(video => ({
+        const formattedVideos = data.map((video: any) => ({
           id: video.id,
           title: video.title,
           thumbnail: video.thumbnail_url || "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&auto=format&fit=crop",
           duration: formatDuration(video.duration || 0),
           tags: video.tags || [],
-        })));
+          created_at: video.created_at,
+          file_size: video.file_size || 0,
+          ai_metadata: video.ai_metadata || {},
+        }));
+        setVideos(formattedVideos);
+        setFilteredVideos(formattedVideos);
 
         const total = data.reduce((sum, video) => sum + (video.file_size || 0), 0);
         setTotalSize(total);
@@ -64,6 +89,93 @@ export default function Videos() {
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
+  const filterAndSortVideos = () => {
+    let result = [...videos];
+
+    // Apply date range filter
+    if (dateRange.from || dateRange.to) {
+      result = result.filter(video => {
+        const videoDate = new Date(video.created_at);
+        if (dateRange.from && videoDate < dateRange.from) return false;
+        if (dateRange.to && videoDate > dateRange.to) return false;
+        return true;
+      });
+    }
+
+    // Apply people filter
+    if (selectedPeople.length > 0) {
+      result = result.filter(video => {
+        const detectedPeople = video.ai_metadata?.detected_people || [];
+        return selectedPeople.some(person => detectedPeople.includes(person));
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "date-desc":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case "date-asc":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "title-asc":
+          return a.title.localeCompare(b.title);
+        case "title-desc":
+          return b.title.localeCompare(a.title);
+        case "size-desc":
+          return b.file_size - a.file_size;
+        case "size-asc":
+          return a.file_size - b.file_size;
+        case "people-desc":
+          const aPeople = a.ai_metadata?.detected_people?.length || 0;
+          const bPeople = b.ai_metadata?.detected_people?.length || 0;
+          return bPeople - aPeople;
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredVideos(result);
+    setCurrentPage(1);
+  };
+
+  // Get unique people from all videos
+  const availablePeople = Array.from(
+    new Set(
+      videos.flatMap(v => v.ai_metadata?.detected_people || [])
+    )
+  ).sort();
+
+  // Pagination
+  const totalPages = Math.ceil(filteredVideos.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedVideos = filteredVideos.slice(startIndex, startIndex + itemsPerPage);
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const showPages = 5;
+    
+    if (totalPages <= showPages + 2) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= showPages; i++) pages.push(i);
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = totalPages - showPages + 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("ellipsis");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push("ellipsis");
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+
   if (loading) {
     return (
       <div className="flex-1">
@@ -86,16 +198,10 @@ export default function Videos() {
             <div>
               <h1 className="text-3xl font-bold mb-2">Video Library</h1>
               <p className="text-muted-foreground">
-                {videos.length.toLocaleString()} videos • {formatBytes(totalSize)}
+                {filteredVideos.length.toLocaleString()} of {videos.length.toLocaleString()} videos • {formatBytes(totalSize)}
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <SlidersHorizontal className="h-4 w-4" />
-              </Button>
               <Button
                 variant={viewMode === "grid" ? "default" : "outline"}
                 size="icon"
@@ -113,26 +219,26 @@ export default function Videos() {
             </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex flex-wrap gap-2"
-          >
-            {["All", "Vehicles", "People", "Locations", "Events", "Protected"].map((filter) => (
-              <Button key={filter} variant={filter === "All" ? "default" : "outline"} size="sm">
-                {filter}
-              </Button>
-            ))}
-          </motion.div>
+          <MediaFilters
+            onDateRangeChange={setDateRange}
+            onSortChange={setSortBy}
+            onPeopleFilter={setSelectedPeople}
+            currentSort={sortBy}
+            availablePeople={availablePeople}
+          />
 
-          {videos.length === 0 ? (
+          {filteredVideos.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No videos found. Upload your first video to get started.</p>
+              <p className="text-muted-foreground">
+                {videos.length === 0 
+                  ? "No videos found. Upload your first video to get started." 
+                  : "No videos match your filters. Try adjusting your search criteria."}
+              </p>
             </div>
           ) : (
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
-              {videos.map((video, index) => (
+            <>
+              <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
+                {paginatedVideos.map((video, index) => (
                 <motion.div 
                   key={video.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -178,7 +284,45 @@ export default function Videos() {
                   </div>
                 </motion.div>
               ))}
-            </div>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Pagination className="mt-8">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    
+                    {getPageNumbers().map((pageNum, idx) => (
+                      <PaginationItem key={idx}>
+                        {pageNum === "ellipsis" ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            onClick={() => setCurrentPage(pageNum as number)}
+                            isActive={currentPage === pageNum}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </>
           )}
         </div>
       </main>
