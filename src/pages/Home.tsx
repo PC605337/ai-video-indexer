@@ -27,7 +27,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-start justify-center overflow-hidden pt-16">
+      <section className="relative min-h-screen flex items-start justify-center overflow-hidden pt-20">
         {/* Background */}
         <div className="absolute inset-0">
           <img
@@ -39,7 +39,7 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 max-w-6xl mx-auto px-6 text-center pt-4">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
