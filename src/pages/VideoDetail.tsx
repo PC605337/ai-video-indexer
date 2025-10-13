@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Download, Share2, Users, Tag, FileText, Clock, AlertCircle, MessageSquare, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ import { EditorToolbar } from "@/components/EditorToolbar";
 import { ReviewPanel } from "@/components/ReviewPanel";
 import { FilePathTraceability } from "@/components/FilePathTraceability";
 import { CaptionControls } from "@/components/CaptionControls";
+import { VideoTimeline } from "@/components/VideoTimeline";
+import { ApprovalWorkflow } from "@/components/ApprovalWorkflow";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -35,6 +37,8 @@ const VideoDetail = () => {
   const [reviewComments, setReviewComments] = useState<any[]>([]);
   const [videoData, setVideoData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [currentVideoTime, setCurrentVideoTime] = useState(0);
+  const videoRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -246,10 +250,26 @@ const VideoDetail = () => {
     { time: "02:30", speaker: "Narrator", text: "Experience the seamless integration of electric and combustion power." },
   ];
 
-  const handleTimeframeClick = (time: string) => {
-    toast.info(`Jump to ${time}`);
-    // In production, actually seek the video to this timestamp
+  const handleTimeframeClick = (time: number) => {
+    setCurrentVideoTime(time);
+    toast.info(`Jumped to ${Math.floor(time / 60)}:${(time % 60).toString().padStart(2, "0")}`);
   };
+
+  const handleSeek = (time: number) => {
+    setCurrentVideoTime(time);
+  };
+
+  const handleMarkerClick = (marker: any) => {
+    setCurrentVideoTime(marker.time);
+    toast.info(`Viewing comment at ${Math.floor(marker.time / 60)}:${(marker.time % 60).toString().padStart(2, "0")}`);
+  };
+
+  const timelineMarkers = reviewComments.map(comment => ({
+    id: comment.id,
+    time: comment.timeframe_start || 0,
+    comment: comment.comment,
+    status: comment.status,
+  }));
 
   if (loading) {
     return (
@@ -723,7 +743,8 @@ const VideoDetail = () => {
                                     className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs font-mono"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleTimeframeClick(ts);
+                                      const [mins, secs] = ts.split(':').map(Number);
+                                      handleTimeframeClick((mins * 60) + secs);
                                     }}
                                   >
                                     {ts}
@@ -837,15 +858,36 @@ const VideoDetail = () => {
             {/* Review Tab - Only for admins/editors */}
             {(userRole === "super_admin" || userRole === "editor") && (
               <TabsContent value="review" className="flex-1 overflow-hidden m-0">
-                <div className="p-6">
-                  <ReviewPanel
-                    assetId={videoData.id}
-                    assetType="video"
-                    comments={reviewComments}
-                    onCommentAdded={loadReviewComments}
-                    onTimeframeClick={(time) => handleTimeframeClick(`${Math.floor(time / 60)}:${String(Math.floor(time % 60)).padStart(2, "0")}`)}
-                  />
-                </div>
+                <ScrollArea className="h-full">
+                  <div className="p-6 space-y-6">
+                    {/* Video Timeline with Comments */}
+                    <Card className="p-4">
+                      <h3 className="font-semibold text-lg mb-4">Interactive Timeline</h3>
+                      <VideoTimeline
+                        duration={videoData.duration ? parseInt(videoData.duration.split(':')[0]) * 60 + parseInt(videoData.duration.split(':')[1]) : 300}
+                        markers={timelineMarkers}
+                        currentTime={currentVideoTime}
+                        onSeek={handleSeek}
+                        onMarkerClick={handleMarkerClick}
+                      />
+                    </Card>
+
+                    {/* Approval Workflow */}
+                    <ApprovalWorkflow
+                      assetId={videoData.id}
+                      onStatusChange={loadReviewComments}
+                    />
+
+                    {/* Review Comments */}
+                    <ReviewPanel
+                      assetId={videoData.id}
+                      assetType="video"
+                      comments={reviewComments}
+                      onCommentAdded={loadReviewComments}
+                      onTimeframeClick={handleTimeframeClick}
+                    />
+                  </div>
+                </ScrollArea>
               </TabsContent>
             )}
 
@@ -864,11 +906,14 @@ const VideoDetail = () => {
             <TabsContent value="transcript" className="flex-1 overflow-hidden m-0">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-3">
-                  {transcript.map((entry, index) => (
+                  {transcript.map((entry, index) => {
+                    const [mins, secs] = entry.time.split(':').map(Number);
+                    const timeInSeconds = (mins * 60) + secs;
+                    return (
                     <div 
                       key={index} 
                       className="flex gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
-                      onClick={() => handleTimeframeClick(entry.time)}
+                      onClick={() => handleTimeframeClick(timeInSeconds)}
                     >
                       <div className="flex-shrink-0">
                         <Badge variant="outline" className="font-mono text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
@@ -880,7 +925,8 @@ const VideoDetail = () => {
                         <p className="text-sm text-foreground leading-relaxed">{entry.text}</p>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </ScrollArea>
             </TabsContent>
