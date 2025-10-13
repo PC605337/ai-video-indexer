@@ -51,6 +51,7 @@ export default function Upload() {
     ocr: true,
     keyScenesKeyframes: true,
     unknownPeople: true,
+    flagInappropriateContent: true,
   });
   const [translationLanguages, setTranslationLanguages] = useState<string[]>([]);
   const [textToTranslate, setTextToTranslate] = useState("");
@@ -461,6 +462,7 @@ export default function Upload() {
                   { id: "ocr", label: "OCR", icon: ImageIcon, description: "Extract text from images and videos" },
                   { id: "keyScenesKeyframes", label: "Key Scenes and Keyframes", icon: FileVideo, description: "Identify important moments" },
                   { id: "unknownPeople", label: "Unknown People", icon: ImageIcon, description: "Detect unidentified individuals" },
+                  { id: "flagInappropriateContent", label: "Flag Inappropriate Content", icon: AlertCircle, description: "Detect inappropriate or unsafe content" },
                 ].map((option) => {
                   const Icon = option.icon;
                   return (
