@@ -236,14 +236,15 @@ const VideoDetail = () => {
 
       {/* Main Content Area - Two Column Layout */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left: Video Player */}
+        {/* Left: Video Player - HD Playback 640×360 to 1280×720 */}
         <div className="w-[58%] bg-black flex items-center justify-center border-r border-border p-4">
-          <div className="w-full max-w-[1280px] aspect-video">
+          <div className="w-full max-w-[1280px] max-h-[720px] aspect-video">
             <video 
               className="w-full h-full rounded-lg shadow-2xl object-contain" 
               controls 
               poster={videoData.thumbnailUrl}
               src={videoData.videoUrl}
+              preload="metadata"
             >
               Your browser does not support the video tag.
             </video>
