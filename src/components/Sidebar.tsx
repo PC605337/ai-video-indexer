@@ -14,6 +14,7 @@ import {
   Mic,
   Volume2,
   Database,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
