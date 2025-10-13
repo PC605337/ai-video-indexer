@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { EditorToolbar } from "@/components/EditorToolbar";
 import { ReviewPanel } from "@/components/ReviewPanel";
+import { VideoControls } from "@/components/VideoControls";
+import { FilePathTraceability } from "@/components/FilePathTraceability";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -36,6 +38,27 @@ const VideoDetail = () => {
     classification: "internal", // Change to "code_red" to test restricted access
     thumbnailUrl: "https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=800",
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    video_id: "VID-2025-001",
+    tags: ["Lexus", "Campaign", "2025", "RAW"],
+    created_by: "John Doe",
+    indexed_by: "System",
+    embeddings: { vector_count: 1536 },
+    bounding_box_settings: {
+      size: "medium",
+      color: "#FF0000",
+      bgTransparency: 0.5,
+      audioEffects: [],
+      speakers: []
+    },
+    nas_path: "NAS://MediaServer/Shared/Toyota/Lexus/2025/RAW/lexus_es_campaign.mp4",
+    s3_path: "S3://toyota-media/archive/Lexus/2025/RAW/lexus_es_campaign.mp4",
+    proxy_path: "Proxy://Node01/Toyota/Lexus/2025/lexus_es_proxy.mp4",
+    final_path: "Final://Toyota/Lexus/2025/lexus_es_final.mp4",
+    version_lineage: [
+      { version: 1, timestamp: "2024-01-10T10:00:00Z", path: "NAS://MediaServer/Shared/Toyota/Lexus/2025/v1.mp4" },
+      { version: 2, timestamp: "2024-01-12T14:30:00Z", path: "NAS://MediaServer/Shared/Toyota/Lexus/2025/v2.mp4" },
+      { version: 3, timestamp: "2024-01-15T09:15:00Z", path: "NAS://MediaServer/Shared/Toyota/Lexus/2025/RAW/lexus_es_campaign.mp4" }
+    ]
   };
 
   useEffect(() => {
@@ -279,6 +302,22 @@ const VideoDetail = () => {
             <TabsContent value="insights" className="flex-1 overflow-hidden m-0">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
+                  {/* Video Controls */}
+                  <VideoControls videoData={videoData} />
+                  
+                  <Separator />
+
+                  {/* File Path Traceability */}
+                  <FilePathTraceability
+                    nasPath={videoData.nas_path}
+                    s3Path={videoData.s3_path}
+                    proxyPath={videoData.proxy_path}
+                    finalPath={videoData.final_path}
+                    versionLineage={videoData.version_lineage}
+                  />
+
+                  <Separator />
+
                   {/* Editor Toolbar - Only for admins/editors */}
                   {(userRole === "super_admin" || userRole === "editor") && (
                     <>

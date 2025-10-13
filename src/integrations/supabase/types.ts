@@ -215,71 +215,104 @@ export type Database = {
       media_assets: {
         Row: {
           asset_type: Database["public"]["Enums"]["asset_type"]
+          bounding_box_settings: Json | null
           checksum_sha256: string | null
           classification:
             | Database["public"]["Enums"]["classification_level"]
             | null
           collection_id: string | null
           created_at: string | null
+          created_by: string | null
           duration: number | null
+          embeddings: Json | null
           file_size: number | null
           file_url: string | null
+          final_path: string | null
           height: number | null
           id: string
           indexed_at: string | null
+          indexed_by: string | null
           indexed_path: string | null
+          nas_path: string | null
           original_path: string | null
+          proxy_path: string | null
           proxy_url: string | null
+          s3_path: string | null
+          tags: string[] | null
           thumbnail_url: string | null
           title: string
           updated_at: string | null
           uploaded_by: string | null
+          version_lineage: Json | null
+          video_id: string | null
           width: number | null
         }
         Insert: {
           asset_type: Database["public"]["Enums"]["asset_type"]
+          bounding_box_settings?: Json | null
           checksum_sha256?: string | null
           classification?:
             | Database["public"]["Enums"]["classification_level"]
             | null
           collection_id?: string | null
           created_at?: string | null
+          created_by?: string | null
           duration?: number | null
+          embeddings?: Json | null
           file_size?: number | null
           file_url?: string | null
+          final_path?: string | null
           height?: number | null
           id?: string
           indexed_at?: string | null
+          indexed_by?: string | null
           indexed_path?: string | null
+          nas_path?: string | null
           original_path?: string | null
+          proxy_path?: string | null
           proxy_url?: string | null
+          s3_path?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
           uploaded_by?: string | null
+          version_lineage?: Json | null
+          video_id?: string | null
           width?: number | null
         }
         Update: {
           asset_type?: Database["public"]["Enums"]["asset_type"]
+          bounding_box_settings?: Json | null
           checksum_sha256?: string | null
           classification?:
             | Database["public"]["Enums"]["classification_level"]
             | null
           collection_id?: string | null
           created_at?: string | null
+          created_by?: string | null
           duration?: number | null
+          embeddings?: Json | null
           file_size?: number | null
           file_url?: string | null
+          final_path?: string | null
           height?: number | null
           id?: string
           indexed_at?: string | null
+          indexed_by?: string | null
           indexed_path?: string | null
+          nas_path?: string | null
           original_path?: string | null
+          proxy_path?: string | null
           proxy_url?: string | null
+          s3_path?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
           uploaded_by?: string | null
+          version_lineage?: Json | null
+          video_id?: string | null
           width?: number | null
         }
         Relationships: [
@@ -460,6 +493,94 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "review_comments_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transcripts: {
+        Row: {
+          asset_id: string
+          created_at: string | null
+          dialect: string | null
+          id: string
+          language: string
+          segments: Json
+          speaker_diarization: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string | null
+          dialect?: string | null
+          id?: string
+          language: string
+          segments: Json
+          speaker_diarization?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string | null
+          dialect?: string | null
+          id?: string
+          language?: string
+          segments?: Json
+          speaker_diarization?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transcripts_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tts_stt_jobs: {
+        Row: {
+          asset_id: string | null
+          config: Json
+          created_at: string | null
+          created_by: string | null
+          error_message: string | null
+          id: string
+          job_type: string
+          result: Json | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          asset_id?: string | null
+          config: Json
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          job_type: string
+          result?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          asset_id?: string | null
+          config?: Json
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          result?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tts_stt_jobs_asset_id_fkey"
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "media_assets"
