@@ -265,173 +265,119 @@ const VideoDetail = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Left: Video Player with Controls Overlay - HD Playback 640×360 to 1280×720 */}
         <div className="w-[58%] bg-black flex flex-col border-r border-border">
-          {/* Video Metadata & Controls Toolbar */}
-          <div className="bg-card/95 backdrop-blur-sm border-b border-border flex-shrink-0">
-            {/* Top Row - Metadata & Controls */}
-            <div className="px-4 py-2.5 border-b border-border/50">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {videoData.classification}
+          {/* Video Controls Toolbar */}
+          <div className="bg-card/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center justify-between gap-4 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="text-xs">
+                {videoData.classification}
+              </Badge>
+              <span className="text-xs text-muted-foreground">ID: {videoData.video_id || videoData.id}</span>
+              {videoData.tags && videoData.tags.length > 0 && (
+                <div className="flex gap-1">
+                  {videoData.tags.slice(0, 3).map((tag, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {tag}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">ID: {videoData.video_id || videoData.id}</span>
-                  </div>
-                  {videoData.tags && videoData.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {videoData.tags.map((tag, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
-                
-                <div className="flex items-center gap-2">
-                  {/* Resolution Selector */}
-                  <Select defaultValue="auto">
-                    <SelectTrigger className="w-28 h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="auto">Auto</SelectItem>
-                      <SelectItem value="360p">360p</SelectItem>
-                      <SelectItem value="720p">720p HD</SelectItem>
-                      <SelectItem value="1080p">1080p FHD</SelectItem>
-                    </SelectContent>
-                  </Select>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {/* Resolution Selector */}
+              <Select defaultValue="auto">
+                <SelectTrigger className="w-28 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="360p">360p</SelectItem>
+                  <SelectItem value="720p">720p HD</SelectItem>
+                  <SelectItem value="1080p">1080p FHD</SelectItem>
+                </SelectContent>
+              </Select>
 
-                  {/* Settings Popover */}
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8">
-                        <Settings className="h-3.5 w-3.5 mr-1.5" />
-                        Settings
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80" align="end">
-                      <div className="space-y-4">
+              {/* Settings Popover */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8">
+                    <Settings className="h-3.5 w-3.5 mr-1.5" />
+                    Settings
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-sm mb-3">Bounding Box & Captions</h4>
+                      
+                      <div className="space-y-3">
                         <div>
-                          <h4 className="font-semibold text-sm mb-3">Bounding Box & Captions</h4>
-                          
-                          <div className="space-y-3">
-                            <div>
-                              <Label className="text-xs">Box Size</Label>
-                              <Select defaultValue="medium">
-                                <SelectTrigger className="h-8 text-xs mt-1">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="small">Small</SelectItem>
-                                  <SelectItem value="medium">Medium</SelectItem>
-                                  <SelectItem value="large">Large</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
+                          <Label className="text-xs">Box Size</Label>
+                          <Select defaultValue="medium">
+                            <SelectTrigger className="h-8 text-xs mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="small">Small</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="large">Large</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                            <div>
-                              <Label className="text-xs">Box Color</Label>
-                              <div className="flex gap-2 mt-1">
-                                <Input
-                                  type="color"
-                                  defaultValue="#FF0000"
-                                  className="w-12 h-8 p-1"
-                                />
-                                <Input
-                                  type="text"
-                                  defaultValue="#FF0000"
-                                  className="h-8 text-xs font-mono"
-                                />
-                              </div>
-                            </div>
-
-                            <div>
-                              <Label className="text-xs">Background Opacity</Label>
-                              <Slider
-                                defaultValue={[50]}
-                                max={100}
-                                step={1}
-                                className="mt-2"
-                              />
-                            </div>
-
-                            <div>
-                              <Label className="text-xs">Audio Effects</Label>
-                              <Select defaultValue="none">
-                                <SelectTrigger className="h-8 text-xs mt-1">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">None</SelectItem>
-                                  <SelectItem value="echo">Echo</SelectItem>
-                                  <SelectItem value="reverb">Reverb</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
+                        <div>
+                          <Label className="text-xs">Box Color</Label>
+                          <div className="flex gap-2 mt-1">
+                            <Input
+                              type="color"
+                              defaultValue="#FF0000"
+                              className="w-12 h-8 p-1"
+                            />
+                            <Input
+                              type="text"
+                              defaultValue="#FF0000"
+                              className="h-8 text-xs font-mono"
+                            />
                           </div>
                         </div>
+
+                        <div>
+                          <Label className="text-xs">Background Opacity</Label>
+                          <Slider
+                            defaultValue={[50]}
+                            max={100}
+                            step={1}
+                            className="mt-2"
+                          />
+                        </div>
+
+                        <div>
+                          <Label className="text-xs">Audio Effects</Label>
+                          <Select defaultValue="none">
+                            <SelectTrigger className="h-8 text-xs mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              <SelectItem value="echo">Echo</SelectItem>
+                              <SelectItem value="reverb">Reverb</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                    </PopoverContent>
-                  </Popover>
-
-                  <Button variant="outline" size="sm" className="h-8">
-                    <Download className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* File Source Paths */}
-            <div className="px-4 py-2 bg-secondary/30">
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="space-y-1">
-                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">Raw Source</Label>
-                  {videoData.nas_path ? (
-                    <button
-                      onClick={() => window.open(videoData.nas_path, '_blank')}
-                      className="w-full text-left p-1.5 rounded bg-secondary/50 hover:bg-secondary transition-colors group flex items-center justify-between"
-                    >
-                      <code className="text-[10px] font-mono text-foreground truncate">
-                        {videoData.nas_path}
-                      </code>
-                      <FileText className="h-3 w-3 flex-shrink-0 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
-                  ) : (
-                    <div className="p-1.5 rounded bg-muted/30">
-                      <code className="text-[10px] text-muted-foreground italic">
-                        NAS://.../RAW/...
-                      </code>
                     </div>
-                  )}
-                </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
-                <div className="space-y-1">
-                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wide">Final Output</Label>
-                  {videoData.final_path ? (
-                    <button
-                      onClick={() => window.open(videoData.final_path, '_blank')}
-                      className="w-full text-left p-1.5 rounded bg-secondary/50 hover:bg-secondary transition-colors group flex items-center justify-between"
-                    >
-                      <code className="text-[10px] font-mono text-foreground truncate">
-                        {videoData.final_path}
-                      </code>
-                      <FileText className="h-3 w-3 flex-shrink-0 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
-                  ) : (
-                    <div className="p-1.5 rounded bg-muted/30">
-                      <code className="text-[10px] text-muted-foreground italic">
-                        Final://.../...
-                      </code>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <Button variant="outline" size="sm" className="h-8">
+                <Download className="h-3.5 w-3.5" />
+              </Button>
             </div>
           </div>
 
           {/* Video Player */}
-          <div className="flex-1 flex items-center justify-center p-4">
+          <div className="flex-1 flex items-center justify-center p-4 bg-black">
             <div className="w-full max-w-[1280px] max-h-[720px] aspect-video">
               <video 
                 className="w-full h-full rounded-lg shadow-2xl object-contain" 
@@ -443,6 +389,130 @@ const VideoDetail = () => {
                 Your browser does not support the video tag.
               </video>
             </div>
+          </div>
+
+          {/* File Paths Section Below Video */}
+          <div className="bg-card border-t border-border flex-shrink-0">
+            <Tabs defaultValue="paths" className="w-full">
+              <TabsList className="w-full justify-start rounded-none border-b h-10 px-4 bg-background/50">
+                <TabsTrigger value="paths" className="gap-2 text-xs">
+                  <FileText className="h-3.5 w-3.5" />
+                  File Paths
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="paths" className="p-4 m-0">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* NAS Path */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                      <Label className="text-xs font-semibold uppercase tracking-wide">NAS Source (Raw)</Label>
+                    </div>
+                    {videoData.nas_path ? (
+                      <button
+                        onClick={() => window.open(videoData.nas_path, '_blank')}
+                        className="w-full text-left p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary transition-all group border border-transparent hover:border-primary/20"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <code className="text-xs font-mono text-foreground break-all">
+                            {videoData.nas_path}
+                          </code>
+                          <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </button>
+                    ) : (
+                      <div className="p-2.5 rounded-lg bg-muted/30 border border-dashed">
+                        <code className="text-xs text-muted-foreground italic">
+                          NAS://.../RAW/...
+                        </code>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* S3 Path */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                      <Label className="text-xs font-semibold uppercase tracking-wide">S3 Glacier</Label>
+                    </div>
+                    {videoData.s3_path ? (
+                      <button
+                        onClick={() => window.open(videoData.s3_path, '_blank')}
+                        className="w-full text-left p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary transition-all group border border-transparent hover:border-primary/20"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <code className="text-xs font-mono text-foreground break-all">
+                            {videoData.s3_path}
+                          </code>
+                          <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </button>
+                    ) : (
+                      <div className="p-2.5 rounded-lg bg-muted/30 border border-dashed">
+                        <code className="text-xs text-muted-foreground italic">
+                          S3://.../...
+                        </code>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Proxy Path */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                      <Label className="text-xs font-semibold uppercase tracking-wide">Proxy</Label>
+                    </div>
+                    {videoData.proxy_path ? (
+                      <button
+                        onClick={() => window.open(videoData.proxy_path, '_blank')}
+                        className="w-full text-left p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary transition-all group border border-transparent hover:border-primary/20"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <code className="text-xs font-mono text-foreground break-all">
+                            {videoData.proxy_path}
+                          </code>
+                          <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </button>
+                    ) : (
+                      <div className="p-2.5 rounded-lg bg-muted/30 border border-dashed">
+                        <code className="text-xs text-muted-foreground italic">
+                          Proxy://.../...
+                        </code>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Final Path */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      <Label className="text-xs font-semibold uppercase tracking-wide">Final Output</Label>
+                    </div>
+                    {videoData.final_path ? (
+                      <button
+                        onClick={() => window.open(videoData.final_path, '_blank')}
+                        className="w-full text-left p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary transition-all group border border-transparent hover:border-primary/20"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <code className="text-xs font-mono text-foreground break-all">
+                            {videoData.final_path}
+                          </code>
+                          <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </button>
+                    ) : (
+                      <div className="p-2.5 rounded-lg bg-muted/30 border border-dashed">
+                        <code className="text-xs text-muted-foreground italic">
+                          Final://.../...
+                        </code>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
 
