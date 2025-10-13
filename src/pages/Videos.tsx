@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Edit3, FileVideo } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,8 @@ export default function Videos() {
   const [loading, setLoading] = useState(true);
   const [totalSize, setTotalSize] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [sortBy, setSortBy] = useState("date-desc");
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
   const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
@@ -60,6 +64,7 @@ export default function Videos() {
           created_at: video.created_at,
           file_size: video.file_size || 0,
           ai_metadata: video.ai_metadata || {},
+          file_url: video.file_url,
         }));
         setVideos(formattedVideos);
         setFilteredVideos(formattedVideos);
@@ -87,6 +92,39 @@ export default function Videos() {
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  const handleEditVideo = (e: React.MouseEvent, video: any) => {
+    e.stopPropagation();
+    setSelectedVideo(video);
+    setShowEditDialog(true);
+  };
+
+  const handleOpenInEditor = async (software: string) => {
+    try {
+      const { error } = await supabase.from("asset_edit_sessions").insert([{
+        asset_id: selectedVideo.id,
+        editor_id: "00000000-0000-0000-0000-000000000000",
+        software: software,
+        status: "in_progress",
+        metadata: { opened_from: "videos_page" },
+      }]);
+
+      if (error) throw error;
+
+      toast.success(`Opening in ${software}...`, {
+        description: "Download the video and open it in your editing software.",
+      });
+      
+      if (selectedVideo.file_url) {
+        window.open(selectedVideo.file_url, "_blank");
+      }
+
+      setShowEditDialog(false);
+    } catch (error) {
+      toast.error("Failed to open in editor");
+      console.error(error);
+    }
   };
 
   const filterAndSortVideos = () => {
@@ -260,12 +298,20 @@ export default function Videos() {
                     <div className="absolute bottom-1.5 right-1.5 bg-black/80 backdrop-blur-sm text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
                       {video.duration}
                     </div>
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="w-12 h-12 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-lg animate-scale-in">
                         <svg className="w-5 h-5 text-primary-foreground ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M8 5v14l11-7z" />
                         </svg>
                       </div>
+                      <Button 
+                        size="icon"
+                        variant="secondary"
+                        className="h-12 w-12 rounded-full shadow-lg"
+                        onClick={(e) => handleEditVideo(e, video)}
+                      >
+                        <Edit3 className="h-5 w-5" />
+                      </Button>
                     </div>
                   </div>
                   <div className="mt-3 space-y-2">
@@ -326,6 +372,71 @@ export default function Videos() {
           )}
         </div>
       </main>
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-md z-[100] bg-background">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit3 className="h-5 w-5 text-primary" />
+              Open in Editing Software
+            </DialogTitle>
+            <DialogDescription>
+              Select your preferred editing software to open and edit this video.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 mt-4">
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-3 h-auto py-3"
+              onClick={() => handleOpenInEditor("Adobe Premiere Pro")}
+            >
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-500/10">
+                <FileVideo className="h-5 w-5 text-purple-600" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="font-semibold">Adobe Premiere Pro</p>
+                <p className="text-xs text-muted-foreground">Professional video editing</p>
+              </div>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-3 h-auto py-3"
+              onClick={() => handleOpenInEditor("Final Cut Pro")}
+            >
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10">
+                <FileVideo className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="font-semibold">Final Cut Pro</p>
+                <p className="text-xs text-muted-foreground">Mac video editing suite</p>
+              </div>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-3 h-auto py-3"
+              onClick={() => handleOpenInEditor("DaVinci Resolve")}
+            >
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10">
+                <FileVideo className="h-5 w-5 text-red-600" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="font-semibold">DaVinci Resolve</p>
+                <p className="text-xs text-muted-foreground">Color grading & editing</p>
+              </div>
+            </Button>
+          </div>
+
+          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+            <p className="text-xs text-muted-foreground">
+              💡 After editing, click on the video to open the detail page and submit for approval review.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

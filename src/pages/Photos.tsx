@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Image, Search, Grid, List } from "lucide-react";
+import { Image, Search, Grid, List, Edit3, Image as ImageIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { MediaFilters } from "@/components/MediaFilters";
 import {
   Pagination,
@@ -254,10 +257,18 @@ const Photos = () => {
                 <div className="absolute bottom-1.5 right-1.5 bg-black/80 backdrop-blur-sm text-white text-[10px] px-1.5 py-0.5 rounded">
                   {photo.resolution}
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="w-12 h-12 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-lg animate-scale-in">
                     <Image className="w-5 h-5 text-primary-foreground" />
                   </div>
+                  <Button 
+                    size="icon"
+                    variant="secondary"
+                    className="h-12 w-12 rounded-full shadow-lg"
+                    onClick={(e) => handleEditPhoto(e, photo)}
+                  >
+                    <Edit3 className="h-5 w-5" />
+                  </Button>
                 </div>
               </div>
               <div className="mt-3 space-y-2">
