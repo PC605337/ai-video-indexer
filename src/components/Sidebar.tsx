@@ -1,5 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   Search,
@@ -14,6 +13,19 @@ import {
 } from "lucide-react";
 import toyotaIcon from "@/assets/toyota-icon.png";
 import { Button } from "@/components/ui/button";
+import {
+  Sidebar as SidebarRoot,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarHeader,
+  SidebarFooter,
+  useSidebar,
+} from "@/components/ui/sidebar";
 
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
@@ -30,63 +42,73 @@ const menuItems = [
 export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { open } = useSidebar();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 glass border-r border-border transition-smooth">
-      <div className="flex h-full flex-col">
-        {/* Logo + Upload */}
-        <div className="flex h-16 items-center justify-between border-b border-border px-6">
-          <div className="flex items-center gap-3">
-            <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8" />
-            <div>
-              <h1 className="text-lg font-bold gradient-text">AI Indexer</h1>
-              <p className="text-xs text-muted-foreground">Enterprise Platform</p>
-            </div>
+    <SidebarRoot className="border-r border-border" collapsible="icon">
+      <SidebarHeader className="border-b border-border">
+        <div className="flex h-16 items-center justify-between px-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8 shrink-0" />
+            {open && (
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold gradient-text truncate">AI Indexer</h1>
+                <p className="text-xs text-muted-foreground truncate">Enterprise Platform</p>
+              </div>
+            )}
           </div>
-          <Button 
-            size="icon" 
-            className="h-9 w-9 bg-primary hover:bg-primary/90"
-            onClick={() => navigate('/upload')}
-          >
-            <CloudUpload className="h-5 w-5" />
-          </Button>
+          {open && (
+            <Button 
+              size="icon" 
+              className="h-9 w-9 bg-primary hover:bg-primary/90 shrink-0"
+              onClick={() => navigate('/upload')}
+            >
+              <CloudUpload className="h-5 w-5" />
+            </Button>
+          )}
         </div>
+      </SidebarHeader>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 p-4">
-          {menuItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-smooth",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.label}
+                    >
+                      <NavLink to={item.path}>
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-        {/* User Section */}
-        <div className="border-t border-border p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-              SA
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Super Admin</p>
-              <p className="text-xs text-muted-foreground">admin@enterprise.com</p>
-            </div>
+      <SidebarFooter className="border-t border-border">
+        <div className="flex items-center gap-3 p-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold shrink-0">
+            SA
           </div>
+          {open && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">Super Admin</p>
+              <p className="text-xs text-muted-foreground truncate">admin@enterprise.com</p>
+            </div>
+          )}
         </div>
-      </div>
-    </aside>
+      </SidebarFooter>
+    </SidebarRoot>
   );
 };
