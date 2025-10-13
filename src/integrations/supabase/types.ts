@@ -55,6 +55,47 @@ export type Database = {
           },
         ]
       }
+      asset_edit_sessions: {
+        Row: {
+          asset_id: string
+          closed_at: string | null
+          editor_id: string
+          id: string
+          metadata: Json | null
+          opened_at: string | null
+          software: string | null
+          status: string | null
+        }
+        Insert: {
+          asset_id: string
+          closed_at?: string | null
+          editor_id: string
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          software?: string | null
+          status?: string | null
+        }
+        Update: {
+          asset_id?: string
+          closed_at?: string | null
+          editor_id?: string
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          software?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_edit_sessions_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -370,6 +411,62 @@ export type Database = {
         }
         Relationships: []
       }
+      review_comments: {
+        Row: {
+          asset_id: string
+          comment: string
+          created_at: string | null
+          id: string
+          position_x: number | null
+          position_y: number | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string | null
+          timeframe_end: number | null
+          timeframe_start: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          asset_id: string
+          comment: string
+          created_at?: string | null
+          id?: string
+          position_x?: number | null
+          position_y?: number | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
+          timeframe_end?: number | null
+          timeframe_start?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          asset_id?: string
+          comment?: string
+          created_at?: string | null
+          id?: string
+          position_x?: number | null
+          position_y?: number | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
+          timeframe_end?: number | null
+          timeframe_start?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_comments_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -438,6 +535,7 @@ export type Database = {
           end_time: number | null
           id: string
           purpose: string | null
+          request_type: string | null
           requester_id: string | null
           reviewed_at: string | null
           start_time: number | null
@@ -450,6 +548,7 @@ export type Database = {
           end_time?: number | null
           id?: string
           purpose?: string | null
+          request_type?: string | null
           requester_id?: string | null
           reviewed_at?: string | null
           start_time?: number | null
@@ -462,6 +561,7 @@ export type Database = {
           end_time?: number | null
           id?: string
           purpose?: string | null
+          request_type?: string | null
           requester_id?: string | null
           reviewed_at?: string | null
           start_time?: number | null

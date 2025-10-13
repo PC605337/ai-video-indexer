@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Share2, Users, Tag, FileText, Clock, AlertCircle } from "lucide-react";
+import { ArrowLeft, Download, Share2, Users, Tag, FileText, Clock, AlertCircle, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { EditorToolbar } from "@/components/EditorToolbar";
+import { ReviewPanel } from "@/components/ReviewPanel";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -22,6 +24,8 @@ const VideoDetail = () => {
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [requestPurpose, setRequestPurpose] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [reviewComments, setReviewComments] = useState<any[]>([]);
 
   // Mock video data - replace with real data from Supabase
   const videoData = {
@@ -35,12 +39,31 @@ const VideoDetail = () => {
   };
 
   useEffect(() => {
-    const fetchFaceLibrary = async () => {
-      const { data } = await supabase.from("face_library").select("*").order("name");
-      if (data) setFaceLibrary(data);
+    const fetchData = async () => {
+      // Fetch face library
+      const { data: facesData } = await supabase.from("face_library").select("*").order("name");
+      if (facesData) setFaceLibrary(facesData);
+
+      // Check user role
+      const { data: rolesData } = await supabase.from("user_roles").select("role").limit(1).single();
+      if (rolesData) {
+        setUserRole(rolesData.role);
+      }
+
+      // Load review comments
+      loadReviewComments();
     };
-    fetchFaceLibrary();
+    fetchData();
   }, []);
+
+  const loadReviewComments = useCallback(async () => {
+    const { data } = await supabase
+      .from("review_comments")
+      .select("*")
+      .eq("asset_id", id)
+      .order("created_at", { ascending: false });
+    if (data) setReviewComments(data);
+  }, [id]);
 
   const handleRequestAccess = async () => {
     if (!requestPurpose.trim()) {
@@ -225,6 +248,12 @@ const VideoDetail = () => {
                 <Tag className="h-4 w-4" />
                 Insights
               </TabsTrigger>
+              {(userRole === "super_admin" || userRole === "editor") && (
+                <TabsTrigger value="review" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Review
+                </TabsTrigger>
+              )}
               <TabsTrigger value="timeline" className="gap-2">
                 <Clock className="h-4 w-4" />
                 Timeline
@@ -239,6 +268,18 @@ const VideoDetail = () => {
             <TabsContent value="insights" className="flex-1 overflow-hidden m-0">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
+                  {/* Editor Toolbar - Only for admins/editors */}
+                  {(userRole === "super_admin" || userRole === "editor") && (
+                    <>
+                      <EditorToolbar
+                        assetId={videoData.id}
+                        assetType="video"
+                        assetUrl={videoData.videoUrl}
+                      />
+                      <Separator />
+                    </>
+                  )}
+
                   {/* People Section */}
                   <div>
                     <div className="flex items-center gap-2 mb-4">
@@ -385,6 +426,21 @@ const VideoDetail = () => {
                 </div>
               </ScrollArea>
             </TabsContent>
+
+            {/* Review Tab - Only for admins/editors */}
+            {(userRole === "super_admin" || userRole === "editor") && (
+              <TabsContent value="review" className="flex-1 overflow-hidden m-0">
+                <div className="p-6">
+                  <ReviewPanel
+                    assetId={videoData.id}
+                    assetType="video"
+                    comments={reviewComments}
+                    onCommentAdded={loadReviewComments}
+                    onTimeframeClick={(time) => handleTimeframeClick(`${Math.floor(time / 60)}:${String(Math.floor(time % 60)).padStart(2, "0")}`)}
+                  />
+                </div>
+              </TabsContent>
+            )}
 
             {/* Timeline Tab */}
             <TabsContent value="timeline" className="flex-1 overflow-hidden m-0">
