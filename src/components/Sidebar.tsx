@@ -41,13 +41,17 @@ const menuItems = [
 export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { open } = useSidebar();
+  const { open, setOpen } = useSidebar();
 
   return (
-    <aside className={cn(
-      "fixed left-0 top-16 h-[calc(100vh-4rem)] glass border-r border-border z-20 transition-all duration-300",
-      open ? "w-64" : "w-16"
-    )}>
+    <aside 
+      className={cn(
+        "fixed left-0 top-16 h-[calc(100vh-4rem)] glass border-r border-border z-20 transition-all duration-300 group",
+        open ? "w-64" : "w-16"
+      )}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <div className="flex h-full flex-col">
         {/* Navigation */}
         <nav className="flex-1 space-y-1 p-2 overflow-y-auto">

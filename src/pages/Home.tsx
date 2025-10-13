@@ -26,9 +26,8 @@ export default function Home() {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen">
-      
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
         {/* Background */}
         <div className="absolute inset-0">
           <img

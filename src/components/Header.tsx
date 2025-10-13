@@ -63,15 +63,27 @@ export const Header = () => {
           <Button 
             variant="ghost" 
             size="icon"
-            title="Audit Trail"
+            onClick={() => navigate('/activity-log')}
+            title="Activity Log"
           >
             <FileText className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="relative" title="Notifications">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative" 
+            onClick={() => navigate('/notifications')}
+            title="Notifications"
+          >
             <Bell className="h-5 w-5" />
             <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
           </Button>
-          <Button variant="ghost" size="icon" title="User Profile">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate('/users')}
+            title="User Profile"
+          >
             <User className="h-5 w-5" />
           </Button>
         </div>

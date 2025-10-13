@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
@@ -28,6 +29,8 @@ import SpeechToText from "./pages/SpeechToText";
 import NotFound from "./pages/NotFound";
 import PhotoDetail from "./pages/PhotoDetail";
 import Requests from "./pages/Requests";
+import ActivityLog from "./pages/ActivityLog";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -50,7 +53,14 @@ const App = () => {
 const AppContent = () => {
   const location = useLocation();
   const showSidebar = location.pathname !== '/';
-  const { open } = useSidebar();
+  const { open, setOpen } = useSidebar();
+
+  // Auto-collapse sidebar on library pages
+  useEffect(() => {
+    if (showSidebar) {
+      setOpen(false);
+    }
+  }, [location.pathname, showSidebar, setOpen]);
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -81,6 +91,8 @@ const AppContent = () => {
           <Route path="/populate-libraries" element={<PopulateLibraries />} />
           <Route path="/text-to-speech" element={<TextToSpeech />} />
           <Route path="/speech-to-text" element={<SpeechToText />} />
+          <Route path="/activity-log" element={<ActivityLog />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
