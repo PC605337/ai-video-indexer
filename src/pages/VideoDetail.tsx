@@ -32,47 +32,52 @@ const VideoDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [reviewComments, setReviewComments] = useState<any[]>([]);
-
-  // Mock video data - replace with real data from Supabase
-  const videoData = {
-    id: id || "1",
-    title: "Lexus ES 2025 Campaign - RAW Footage",
-    duration: "12:34",
-    uploadedAt: "2024-01-15",
-    classification: "internal", // Change to "code_red" to test restricted access
-    thumbnailUrl: "https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=800",
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    video_id: "VID-2025-001",
-    tags: ["Lexus", "Campaign", "2025", "RAW"],
-    created_by: "John Doe",
-    indexed_by: "System",
-    embeddings: { vector_count: 1536 },
-    bounding_box_settings: {
-      size: "medium",
-      color: "#FF0000",
-      bgTransparency: 0.5,
-      audioEffects: [],
-      speakers: []
-    },
-    nas_path: "NAS://MediaServer/Shared/Toyota/Lexus/2025/RAW/lexus_es_campaign.mp4",
-    s3_path: "S3://toyota-media/archive/Lexus/2025/RAW/lexus_es_campaign.mp4",
-    proxy_path: "Proxy://Node01/Toyota/Lexus/2025/lexus_es_proxy.mp4",
-    final_path: "Final://Toyota/Lexus/2025/lexus_es_final.mp4",
-    version_lineage: [
-      { version: 1, timestamp: "2024-01-10T10:00:00Z", path: "NAS://MediaServer/Shared/Toyota/Lexus/2025/v1.mp4" },
-      { version: 2, timestamp: "2024-01-12T14:30:00Z", path: "NAS://MediaServer/Shared/Toyota/Lexus/2025/v2.mp4" },
-      { version: 3, timestamp: "2024-01-15T09:15:00Z", path: "NAS://MediaServer/Shared/Toyota/Lexus/2025/RAW/lexus_es_campaign.mp4" }
-    ]
-  };
+  const [videoData, setVideoData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      
+      // Fetch video data from database
+      const { data: video, error: videoError } = await supabase
+        .from("media_assets")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      
+      if (video) {
+        // Convert YouTube URL to embed URL
+        let embedUrl = video.file_url;
+        if (video.file_url?.includes('youtube.com') || video.file_url?.includes('youtu.be')) {
+          const videoId = video.video_id?.replace('YT-', '');
+          embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        }
+        
+        // Format duration
+        const formatDuration = (seconds: number) => {
+          const mins = Math.floor(seconds / 60);
+          const secs = seconds % 60;
+          return `${mins}:${secs.toString().padStart(2, '0')}`;
+        };
+        
+        setVideoData({
+          ...video,
+          embedUrl,
+          duration: formatDuration(video.duration || 0),
+          uploadedAt: new Date(video.created_at).toISOString().split('T')[0],
+          thumbnailUrl: video.thumbnail_url,
+          created_by: video.created_by || "Unknown",
+          indexed_by: video.indexed_by || "System"
+        });
+      }
+      
       // Fetch face library
       const { data: facesData } = await supabase.from("face_library").select("*").order("name");
       if (facesData) setFaceLibrary(facesData);
 
-      // Check user role - handle empty result
-      const { data: rolesData, error: roleError } = await supabase
+      // Check user role
+      const { data: rolesData } = await supabase
         .from("user_roles")
         .select("role")
         .limit(1)
@@ -81,12 +86,12 @@ const VideoDetail = () => {
       if (rolesData) {
         setUserRole(rolesData.role);
       } else {
-        // Default to viewer role if no role assigned
         setUserRole("viewer");
       }
 
       // Load review comments
       loadReviewComments();
+      setLoading(false);
     };
     fetchData();
   }, [id]);
@@ -183,6 +188,22 @@ const VideoDetail = () => {
     toast.info(`Jump to ${time}`);
     // In production, actually seek the video to this timestamp
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading video...</p>
+      </div>
+    );
+  }
+
+  if (!videoData) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Video not found</p>
+      </div>
+    );
+  }
 
   // Show restricted access UI for code_red content
   if (videoData.classification === "code_red") {
@@ -379,15 +400,25 @@ const VideoDetail = () => {
           {/* Video Player */}
           <div className="flex-1 flex items-center justify-center p-4 bg-black">
             <div className="w-full max-w-[1280px] max-h-[720px] aspect-video">
-              <video 
-                className="w-full h-full rounded-lg shadow-2xl object-contain" 
-                controls 
-                poster={videoData.thumbnailUrl}
-                src={videoData.videoUrl}
-                preload="metadata"
-              >
-                Your browser does not support the video tag.
-              </video>
+              {videoData.embedUrl?.includes('youtube.com/embed') ? (
+                <iframe
+                  className="w-full h-full rounded-lg shadow-2xl"
+                  src={videoData.embedUrl}
+                  title={videoData.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video 
+                  className="w-full h-full rounded-lg shadow-2xl object-contain" 
+                  controls 
+                  poster={videoData.thumbnailUrl}
+                  src={videoData.file_url}
+                  preload="metadata"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
             </div>
           </div>
 
