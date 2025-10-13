@@ -7,24 +7,27 @@ interface MediaCardProps {
   title: string;
   thumbnail: string;
   duration?: string;
-  type: "video" | "photo";
+  type?: "video" | "photo";
   tags?: string[];
-  index: number;
+  index?: number;
+  onClick?: () => void;
 }
 
 export const MediaCard = ({
   title,
   thumbnail,
   duration,
-  type,
+  type = "video",
   tags = [],
-  index,
+  index = 0,
+  onClick,
 }: MediaCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
+      onClick={onClick}
       className="group relative overflow-hidden rounded-xl glass cursor-pointer transition-smooth hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
     >
       {/* Thumbnail */}

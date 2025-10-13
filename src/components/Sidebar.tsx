@@ -1,29 +1,29 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
-  Film,
-  Image,
-  Upload,
-  Settings,
-  BarChart3,
-  Shield,
+  Home,
+  Search,
+  FolderOpen,
+  Briefcase,
   Cpu,
-  Mic,
-  Volume2,
+  Activity,
+  BarChart3,
+  Users,
+  Settings,
   CloudUpload,
 } from "lucide-react";
 import toyotaIcon from "@/assets/toyota-icon.png";
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: Film, label: "Video Library", path: "/videos" },
-  { icon: Image, label: "Photo Library", path: "/photos" },
-  { icon: Upload, label: "Upload", path: "/upload" },
-  { icon: BarChart3, label: "Analytics", path: "/analytics" },
-  { icon: Volume2, label: "Text-to-Speech", path: "/tts" },
-  { icon: Mic, label: "Speech-to-Text", path: "/stt" },
+  { icon: Home, label: "Home", path: "/" },
+  { icon: Search, label: "Explorer", path: "/explorer" },
+  { icon: FolderOpen, label: "Collections", path: "/collections" },
+  { icon: Briefcase, label: "Jobs", path: "/jobs" },
+  { icon: Cpu, label: "Models", path: "/models" },
+  { icon: Activity, label: "Model Performance", path: "/model-performance" },
+  { icon: BarChart3, label: "Model Analytics", path: "/analytics" },
+  { icon: Users, label: "Users", path: "/users" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 

@@ -1,252 +1,165 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  ArrowLeft,
-  Play,
-  Pause,
-  Volume2,
-  Maximize,
-  Download,
-  Share2,
-  FileText,
-  Tag,
-  Users,
-  MapPin,
-  BarChart3,
-  Sparkles,
-  MessageSquare,
-} from "lucide-react";
+import { ArrowLeft, Download, Share2, User, MessageSquare, Tag, Volume2, Clock, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
-// Mock video data
-const mockVideos = [
-  {
-    id: 1,
-    title: "GR Corolla - Performance Review",
-    url: "https://images.unsplash.com/photo-1542362567-b07e54358753?w=1200&auto=format&fit=crop",
-    duration: "12:45",
-    uploadDate: "2024-03-15",
-    tags: ["Performance", "GR Corolla", "Review", "Sports"],
-  },
-  {
-    id: 2,
-    title: "GR Supra - Track Day",
-    url: "https://images.unsplash.com/photo-1619405399517-d7fce0f13302?w=1200&auto=format&fit=crop",
-    duration: "8:15",
-    uploadDate: "2024-03-14",
-    tags: ["Sports Car", "GR Supra", "Performance", "Track"],
-  },
-];
-
-export default function VideoDetail() {
+const VideoDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const video = mockVideos.find((v) => v.id === Number(id)) || mockVideos[0];
+  const [activeTab, setActiveTab] = useState("insights");
 
-  // Mock AI-generated insights (Azure AI Video Indexer style)
+  const videoData = {
+    title: "Toyota Camry 2024 Launch Event",
+    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    duration: "5:42",
+  };
+
   const insights = {
-    transcript: [
-      { time: "00:00:05", speaker: "Narrator", text: "Welcome to our comprehensive review of the GR Corolla." },
-      { time: "00:00:12", speaker: "Narrator", text: "This high-performance vehicle combines rally-bred technology with everyday usability." },
-      { time: "00:00:25", speaker: "Narrator", text: "Let's dive into the key features that make this car exceptional." },
+    people: [
+      { name: "Akio Toyoda", role: "Chairman", appearances: 12, timeframes: ["0:30-1:45", "3:20-4:10"] },
+      { name: "Koji Sato", role: "President", appearances: 8, timeframes: ["1:50-2:30", "4:15-5:20"] },
     ],
-    keywords: ["Performance", "GR Corolla", "Rally", "AWD", "Turbocharged", "Sports Car", "Handling", "Power"],
-    topics: ["Vehicle Performance", "Automotive Technology", "Sports Cars", "Rally Heritage"],
-    faces: [
-      { name: "John Smith", appearances: 8, confidence: 0.95 },
-      { name: "Sarah Johnson", appearances: 3, confidence: 0.89 },
+    observedPeople: [
+      { id: 1, face: "Person #1", confidence: 0.95, timeframe: "2:10" },
+      { id: 2, face: "Person #2", confidence: 0.88, timeframe: "3:45" },
     ],
-    scenes: [
-      { time: "00:00:00", description: "Exterior shots of vehicle", duration: "0:15" },
-      { time: "00:00:15", description: "Interior walkthrough", duration: "0:30" },
-      { time: "00:00:45", description: "On-road performance demonstration", duration: "1:20" },
-      { time: "00:02:05", description: "Track testing sequences", duration: "2:15" },
+    topics: [
+      { name: "Product Launch", relevance: 0.92 },
+      { name: "Hybrid Technology", relevance: 0.85 },
+      { name: "Safety Features", relevance: 0.78 },
     ],
-    objects: ["Vehicle", "Road", "Track", "Steering Wheel", "Dashboard", "Engine"],
-    sentiments: [
-      { sentiment: "Positive", percentage: 78 },
-      { sentiment: "Neutral", percentage: 18 },
-      { sentiment: "Negative", percentage: 4 },
+    keywords: ["Camry", "2024", "Hybrid", "Safety", "Innovation", "Toyota", "Launch"],
+    labels: [
+      { name: "Vehicle", confidence: 0.98 },
+      { name: "Presentation", confidence: 0.95 },
+      { name: "Automotive", confidence: 0.92 },
     ],
-    ocr: [
-      { time: "00:01:23", text: "301 HP" },
-      { time: "00:02:45", text: "GR-Four AWD System" },
-      { time: "00:05:12", text: "0-60 MPH: 4.9s" },
-    ],
-    brands: ["GR", "Motorsport", "Rally"],
-    celebrities: [],
     emotions: [
-      { emotion: "Excitement", percentage: 65 },
-      { emotion: "Neutral", percentage: 25 },
-      { emotion: "Focused", percentage: 10 },
+      { type: "Confident", percentage: 75 },
+      { type: "Enthusiastic", percentage: 62 },
+      { type: "Professional", percentage: 88 },
     ],
+    audioEffects: ["Applause (0:45)", "Music (2:30-3:00)", "Background Chatter (4:10)"],
+  };
+
+  const transcript = [
+    { time: "00:00", speaker: "Akio Toyoda", text: "Welcome everyone to the launch of the all-new 2024 Toyota Camry." },
+    { time: "00:30", speaker: "Akio Toyoda", text: "This vehicle represents the future of hybrid technology and sustainable mobility." },
+    { time: "01:50", speaker: "Koji Sato", text: "The new Camry features advanced safety systems that set industry standards." },
+    { time: "02:30", speaker: "Koji Sato", text: "We've integrated cutting-edge AI technology for driver assistance." },
+  ];
+
+  const handleTimeframeClick = (timeframe: string) => {
+    console.log("Jumping to:", timeframe);
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header with Back Button */}
-      <div className="fixed top-0 left-0 right-0 z-50 glass border-b border-border backdrop-blur-lg">
-        <div className="flex items-center justify-between p-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/videos")}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Library
+      <header className="fixed top-0 left-0 right-0 h-16 glass border-b border-border z-50 flex items-center justify-between px-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
-            <Button variant="outline" size="sm">
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
-            </Button>
+          <div>
+            <h1 className="font-semibold">{videoData.title}</h1>
+            <p className="text-xs text-muted-foreground">{videoData.duration}</p>
           </div>
         </div>
-      </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2">
+            <Download className="h-4 w-4" />
+            Download
+          </Button>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Share2 className="h-4 w-4" />
+            Share
+          </Button>
+        </div>
+      </header>
 
-      {/* Main Content - Video + Metadata Panel */}
       <div className="pt-16 h-screen flex">
-        {/* Video Player Section */}
-        <div className="flex-1 flex flex-col bg-black">
-          <div className="flex-1 flex items-center justify-center p-4">
-            <div className="relative w-full max-w-7xl aspect-video rounded-lg overflow-hidden group">
-              <img
-                src={video.url}
-                alt={video.title}
-                className="w-full h-full object-contain"
-              />
-              
-              {/* Video Controls Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-white hover:bg-white/20"
-                      onClick={() => setIsPlaying(!isPlaying)}
-                    >
-                      {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-                    </Button>
-                    <div className="flex-1 h-1 bg-white/30 rounded-full">
-                      <div className="h-full w-1/3 bg-primary rounded-full" />
-                    </div>
-                    <span className="text-white text-sm">04:15 / {video.duration}</span>
-                    <Volume2 className="h-5 w-5 text-white" />
-                    <Maximize className="h-5 w-5 text-white" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Video Title Bar */}
-          <div className="px-6 py-4 bg-background border-t border-border">
-            <h1 className="text-xl font-bold mb-2">{video.title}</h1>
-            <div className="flex flex-wrap gap-2">
-              {video.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
+        <div className="flex-1 bg-black flex items-center justify-center">
+          <video src={videoData.url} controls className="w-full h-full" style={{ maxHeight: "100%" }}>
+            Your browser does not support the video tag.
+          </video>
         </div>
 
-        {/* AI Insights Panel - Azure AI Video Indexer Style */}
-        <div className="w-[420px] flex flex-col glass border-l border-border overflow-hidden">
-          <div className="bg-secondary/30 p-4 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold">Insights</h2>
-            </div>
-          </div>
-
-          <Tabs defaultValue="transcript" className="flex-1 flex flex-col">
-            <TabsList className="w-full grid grid-cols-3 rounded-none border-b bg-transparent h-auto p-0">
-              <TabsTrigger 
-                value="transcript" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Transcript</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="insights"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
-              >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Insights</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="people"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">People</span>
-              </TabsTrigger>
+        <div className="w-[420px] glass border-l border-border flex flex-col">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+            <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
+              <TabsTrigger value="insights">Insights</TabsTrigger>
+              <TabsTrigger value="timeline">Timeline</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="transcript" className="flex-1 p-4 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="space-y-3 pr-4">
-                  {insights.transcript.map((item, idx) => (
-                    <div key={idx} className="group hover:bg-secondary/20 p-3 rounded-lg transition-colors cursor-pointer">
-                      <div className="flex items-start gap-3">
-                        <span className="text-xs text-primary font-mono mt-1 min-w-[60px]">{item.time}</span>
-                        <div className="flex-1 space-y-1">
-                          <Badge variant="outline" className="text-xs mb-1">
-                            {item.speaker}
-                          </Badge>
-                          <p className="text-sm leading-relaxed">{item.text}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="insights" className="flex-1 p-4 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="space-y-6 pr-4">
-                  {/* Keywords */}
+            <TabsContent value="insights" className="flex-1 m-0">
+              <ScrollArea className="h-[calc(100vh-112px)]">
+                <div className="p-4 space-y-6">
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground uppercase tracking-wide">
-                      <Tag className="h-4 w-4" />
-                      Keywords
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {insights.keywords.map((keyword) => (
-                        <Badge key={keyword} variant="secondary" className="cursor-pointer hover:bg-primary/20">
-                          {keyword}
-                        </Badge>
+                    <div className="flex items-center gap-2 mb-3">
+                      <User className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold">People ({insights.people.length})</h3>
+                    </div>
+                    <div className="space-y-3">
+                      {insights.people.map((person) => (
+                        <div key={person.name} className="p-3 rounded-lg bg-secondary/50 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <div className="font-medium">{person.name}</div>
+                              <div className="text-xs text-muted-foreground">{person.role}</div>
+                            </div>
+                            <Badge variant="outline" className="text-xs">{person.appearances} appearances</Badge>
+                          </div>
+                          <div className="space-y-1">
+                            {person.timeframes.map((tf, idx) => (
+                              <button key={idx} onClick={() => handleTimeframeClick(tf)} className="flex items-center gap-2 text-xs text-accent hover:underline w-full text-left">
+                                <Clock className="h-3 w-3" />
+                                {tf}
+                                <ChevronRight className="h-3 w-3 ml-auto" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
 
                   <Separator />
 
-                  {/* Topics */}
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground uppercase tracking-wide">
-                      <MessageSquare className="h-4 w-4" />
-                      Topics
-                    </h3>
+                    <h3 className="font-semibold mb-3">Observed People</h3>
+                    <div className="space-y-2">
+                      {insights.observedPeople.map((person) => (
+                        <button key={person.id} onClick={() => handleTimeframeClick(person.timeframe)} className="w-full p-2 rounded bg-secondary/30 hover:bg-secondary/50 transition-smooth flex items-center justify-between text-left">
+                          <span className="text-sm">{person.face}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">{(person.confidence * 100).toFixed(0)}%</span>
+                            <span className="text-xs text-accent">{person.timeframe}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <MessageSquare className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold">Topics</h3>
+                    </div>
                     <div className="space-y-2">
                       {insights.topics.map((topic) => (
-                        <div key={topic} className="flex items-start gap-2 text-sm hover:bg-secondary/20 p-2 rounded transition-colors cursor-pointer">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
-                          <span>{topic}</span>
+                        <div key={topic.name} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>{topic.name}</span>
+                            <span className="text-xs text-muted-foreground">{(topic.relevance * 100).toFixed(0)}%</span>
+                          </div>
+                          <Progress value={topic.relevance * 100} className="h-1" />
                         </div>
                       ))}
                     </div>
@@ -254,60 +167,58 @@ export default function VideoDetail() {
 
                   <Separator />
 
-                  {/* Sentiments */}
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Sentiment Analysis</h3>
-                    <div className="space-y-3">
-                      {insights.sentiments.map((item) => (
-                        <div key={item.sentiment}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium">{item.sentiment}</span>
-                            <span className="text-sm text-muted-foreground">{item.percentage}%</span>
-                          </div>
-                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary rounded-full transition-all"
-                              style={{ width: `${item.percentage}%` }}
-                            />
-                          </div>
-                        </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Volume2 className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold">Audio Effects</h3>
+                    </div>
+                    <div className="space-y-1">
+                      {insights.audioEffects.map((effect, idx) => (
+                        <div key={idx} className="text-sm text-muted-foreground">{effect}</div>
                       ))}
                     </div>
                   </div>
 
                   <Separator />
 
-                  {/* Scenes */}
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground uppercase tracking-wide">
-                      <MapPin className="h-4 w-4" />
-                      Scenes
-                    </h3>
-                    <div className="space-y-3">
-                      {insights.scenes.map((scene, idx) => (
-                        <div key={idx} className="hover:bg-secondary/20 p-3 rounded-lg transition-colors cursor-pointer">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-primary font-mono">{scene.time}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {scene.duration}
-                            </Badge>
-                          </div>
-                          <p className="text-sm">{scene.description}</p>
-                        </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Tag className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold">Keywords</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {insights.keywords.map((keyword) => (
+                        <Badge key={keyword} variant="secondary">{keyword}</Badge>
                       ))}
                     </div>
                   </div>
 
                   <Separator />
 
-                  {/* OCR Text */}
                   <div>
-                    <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Detected Text (OCR)</h3>
+                    <h3 className="font-semibold mb-3">Labels</h3>
                     <div className="space-y-2">
-                      {insights.ocr.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-3 text-sm hover:bg-secondary/20 p-2 rounded transition-colors cursor-pointer">
-                          <span className="text-primary font-mono text-xs min-w-[60px]">{item.time}</span>
-                          <span className="font-medium">{item.text}</span>
+                      {insights.labels.map((label) => (
+                        <div key={label.name} className="flex items-center justify-between text-sm">
+                          <span>{label.name}</span>
+                          <span className="text-xs text-muted-foreground">{(label.confidence * 100).toFixed(0)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div>
+                    <h3 className="font-semibold mb-3">Emotions</h3>
+                    <div className="space-y-2">
+                      {insights.emotions.map((emotion) => (
+                        <div key={emotion.type} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>{emotion.type}</span>
+                            <span className="text-xs text-muted-foreground">{emotion.percentage}%</span>
+                          </div>
+                          <Progress value={emotion.percentage} className="h-1" />
                         </div>
                       ))}
                     </div>
@@ -316,24 +227,23 @@ export default function VideoDetail() {
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="people" className="flex-1 p-4 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="space-y-3 pr-4">
-                  {insights.faces.map((face, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-3 hover:bg-secondary/20 rounded-lg transition-colors cursor-pointer">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Users className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm truncate">{face.name}</h4>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>{face.appearances} appearances</span>
-                          <span>•</span>
-                          <span>{Math.round(face.confidence * 100)}% confidence</span>
-                        </div>
-                      </div>
+            <TabsContent value="timeline" className="flex-1 m-0">
+              <ScrollArea className="h-[calc(100vh-112px)]">
+                <div className="p-4 space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-3">Transcription</h3>
+                    <div className="space-y-3">
+                      {transcript.map((entry, idx) => (
+                        <button key={idx} onClick={() => handleTimeframeClick(entry.time)} className="w-full p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth text-left space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono text-accent">{entry.time}</span>
+                            <span className="text-xs text-muted-foreground">{entry.speaker}</span>
+                          </div>
+                          <p className="text-sm">{entry.text}</p>
+                        </button>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </ScrollArea>
             </TabsContent>
@@ -342,4 +252,6 @@ export default function VideoDetail() {
       </div>
     </div>
   );
-}
+};
+
+export default VideoDetail;
