@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -42,15 +43,18 @@ export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { open, setOpen } = useSidebar();
+  const [isHovering, setIsHovering] = useState(false);
+
+  const shouldExpand = open || isHovering;
 
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-16 h-[calc(100vh-4rem)] glass border-r border-border z-20 transition-all duration-300 group",
-        open ? "w-64" : "w-16"
+        "fixed left-0 top-16 h-[calc(100vh-4rem)] glass border-r border-border z-20 transition-all duration-300",
+        shouldExpand ? "w-64" : "w-16"
       )}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
     >
       <div className="flex h-full flex-col">
         {/* Navigation */}
@@ -71,11 +75,11 @@ export const Sidebar = () => {
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
-                {open && <span>{item.label}</span>}
+                {shouldExpand && <span>{item.label}</span>}
               </NavLink>
             );
 
-            if (!open) {
+            if (!shouldExpand) {
               return (
                 <Tooltip key={item.path} delayDuration={0}>
                   <TooltipTrigger asChild>
@@ -93,7 +97,7 @@ export const Sidebar = () => {
         </nav>
 
         {/* Upload Button */}
-        {open && (
+        {shouldExpand && (
           <div className="px-3 pb-3">
             <Button 
               className="w-full bg-primary hover:bg-primary/90 gap-2"
@@ -107,11 +111,11 @@ export const Sidebar = () => {
 
         {/* User Section */}
         <div className="border-t border-border p-3">
-          <div className={cn("flex items-center gap-3", !open && "justify-center")}>
+          <div className={cn("flex items-center gap-3", !shouldExpand && "justify-center")}>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold shrink-0">
               SA
             </div>
-            {open && (
+            {shouldExpand && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">Super Admin</p>
                 <p className="text-xs text-muted-foreground truncate">admin@enterprise.com</p>

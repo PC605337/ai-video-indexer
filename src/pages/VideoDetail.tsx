@@ -44,17 +44,25 @@ const VideoDetail = () => {
       const { data: facesData } = await supabase.from("face_library").select("*").order("name");
       if (facesData) setFaceLibrary(facesData);
 
-      // Check user role
-      const { data: rolesData } = await supabase.from("user_roles").select("role").limit(1).single();
+      // Check user role - handle empty result
+      const { data: rolesData, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .limit(1)
+        .maybeSingle();
+      
       if (rolesData) {
         setUserRole(rolesData.role);
+      } else {
+        // Default to viewer role if no role assigned
+        setUserRole("viewer");
       }
 
       // Load review comments
       loadReviewComments();
     };
     fetchData();
-  }, []);
+  }, [id]);
 
   const loadReviewComments = useCallback(async () => {
     const { data } = await supabase
