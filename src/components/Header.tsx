@@ -1,17 +1,31 @@
-import { Search, Bell, User, Upload, FileText } from "lucide-react";
+import { Search, Bell, User, Upload, FileText, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSidebar } from "@/components/ui/sidebar";
 import toyotaIcon from "@/assets/toyota-icon.png";
 
 export const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { toggleSidebar } = useSidebar();
+  const showSidebarToggle = location.pathname !== '/';
 
   return (
     <header className="fixed left-0 right-0 top-0 z-30 h-16 glass border-b border-border">
       <div className="flex h-full items-center justify-between px-6">
         {/* Logo and App Name */}
-        <div className="flex items-center gap-3 min-w-[240px]">
+        <div className="flex items-center gap-3">
+          {showSidebarToggle && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              title="Toggle Sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
           <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8 shrink-0" />
           <div>
             <h1 className="text-lg font-bold gradient-text">AI Indexer</h1>

@@ -16,6 +16,7 @@ import {
   Database,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -38,9 +39,13 @@ const menuItems = [
 export const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { open } = useSidebar();
 
   return (
-    <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 glass border-r border-border z-20">
+    <aside className={cn(
+      "fixed left-0 top-16 h-[calc(100vh-4rem)] glass border-r border-border z-20 transition-all duration-300",
+      open ? "w-64" : "w-16"
+    )}>
       <div className="flex h-full flex-col">
         {/* Navigation */}
         <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
@@ -55,39 +60,57 @@ export const Sidebar = () => {
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                  !open && "justify-center"
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
-                <span>{item.label}</span>
+                {open && <span>{item.label}</span>}
               </NavLink>
             );
+
+            if (!open) {
+              return (
+                <Tooltip key={item.path} delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    {linkContent}
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    {item.label}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            }
 
             return <div key={item.path}>{linkContent}</div>;
           })}
         </nav>
 
         {/* Upload Button */}
-        <div className="px-3 pb-3">
-          <Button 
-            className="w-full bg-primary hover:bg-primary/90 gap-2"
-            onClick={() => navigate('/upload')}
-          >
-            <CloudUpload className="h-5 w-5" />
-            Upload Media
-          </Button>
-        </div>
+        {open && (
+          <div className="px-3 pb-3">
+            <Button 
+              className="w-full bg-primary hover:bg-primary/90 gap-2"
+              onClick={() => navigate('/upload')}
+            >
+              <CloudUpload className="h-5 w-5" />
+              Upload Media
+            </Button>
+          </div>
+        )}
 
         {/* User Section */}
         <div className="border-t border-border p-3">
-          <div className="flex items-center gap-3">
+          <div className={cn("flex items-center gap-3", !open && "justify-center")}>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold shrink-0">
               SA
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">Super Admin</p>
-              <p className="text-xs text-muted-foreground truncate">admin@enterprise.com</p>
-            </div>
+            {open && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">Super Admin</p>
+                <p className="text-xs text-muted-foreground truncate">admin@enterprise.com</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import Home from "./pages/Home";
 import Explorer from "./pages/Explorer";
 import Collections from "./pages/Collections";
@@ -47,12 +48,16 @@ const App = () => {
 const AppContent = () => {
   const location = useLocation();
   const showSidebar = location.pathname !== '/';
+  const { open } = useSidebar();
 
   return (
     <div className="min-h-screen w-full bg-background">
       <Header />
       {showSidebar && <Sidebar />}
-      <main className={showSidebar ? "ml-64 pt-16" : "pt-16"}>
+      <main className={cn(
+        "pt-16 transition-all duration-300",
+        showSidebar && (open ? "ml-64" : "ml-16")
+      )}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
