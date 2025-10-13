@@ -1,157 +1,314 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Download, Share2, Users, Tag, FileText, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Download, Share2, User, MessageSquare, Tag, Volume2, Clock, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { FaceThumbnail } from "@/components/FaceThumbnail";
 
 const VideoDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("insights");
   const [faceLibrary, setFaceLibrary] = useState<any[]>([]);
+  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [requestPurpose, setRequestPurpose] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    const loadFaceLibrary = async () => {
-      const { data } = await supabase
-        .from("face_library")
-        .select("*")
-        .order("name");
-      
-      if (data) {
-        setFaceLibrary(data);
-      }
-    };
-
-    loadFaceLibrary();
-  }, []);
-
+  // Mock video data - replace with real data from Supabase
   const videoData = {
-    title: "Toyota Camry 2024 Launch Event",
-    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    duration: "5:42",
+    id: id || "1",
+    title: "Lexus ES 2025 Campaign - RAW Footage",
+    duration: "12:34",
+    uploadedAt: "2024-01-15",
+    classification: "internal", // Change to "code_red" to test restricted access
+    thumbnailUrl: "https://images.unsplash.com/photo-1542282088-fe8426682b8f?w=800",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
   };
 
-  // Map face library data to insights
-  const peopleData = faceLibrary.slice(0, 5).map((exec, idx) => ({
-    name: exec.name,
-    role: exec.role_title,
-    photoUrl: exec.photo_url,
-    appearances: Math.floor(Math.random() * 15) + 5,
-    timeframes: [
-      `${idx}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}-${idx + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
-      `${idx + 2}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}-${idx + 3}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`
-    ]
+  useEffect(() => {
+    const fetchFaceLibrary = async () => {
+      const { data } = await supabase.from("face_library").select("*").order("name");
+      if (data) setFaceLibrary(data);
+    };
+    fetchFaceLibrary();
+  }, []);
+
+  const handleRequestAccess = async () => {
+    if (!requestPurpose.trim()) {
+      toast.error("Please provide a purpose for your request");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from("viewer_requests").insert({
+        asset_id: id,
+        purpose: requestPurpose,
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      toast.success("Access request submitted. Admin will review shortly.");
+      setShowRequestDialog(false);
+      setRequestPurpose("");
+    } catch (error) {
+      toast.error("Failed to submit request");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const peopleData = faceLibrary.slice(0, 6).map((person) => ({
+    id: person.id,
+    name: person.name,
+    role: person.role_title || "Team Member",
+    company: person.company || "Toyota",
+    appearances: Math.floor(Math.random() * 25) + 3,
+    duration: `${Math.floor(Math.random() * 6)}:${String(Math.floor(Math.random() * 60)).padStart(2, "0")}`,
+    thumbnail: person.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${person.name}`,
+    timestamps: ["00:12", "02:45", "05:23", "08:10"].slice(0, Math.floor(Math.random() * 3) + 2),
   }));
 
   const insights = {
-    people: peopleData,
-    observedPeople: [
-      { id: 1, face: "Unknown Person #1", confidence: 0.95, timeframe: "2:10" },
-      { id: 2, face: "Unknown Person #2", confidence: 0.88, timeframe: "3:45" },
-    ],
     topics: [
-      { name: "Product Launch", relevance: 0.92 },
-      { name: "Hybrid Technology", relevance: 0.85 },
-      { name: "Safety Features", relevance: 0.78 },
+      { name: "Vehicle Features", confidence: 95, duration: "3:45", count: 12 },
+      { name: "Manufacturing Process", confidence: 92, duration: "2:30", count: 8 },
+      { name: "Safety Systems", confidence: 88, duration: "1:45", count: 6 },
+      { name: "Design Philosophy", confidence: 85, duration: "2:15", count: 5 },
+      { name: "Technology Innovation", confidence: 82, duration: "1:30", count: 4 },
     ],
-    keywords: ["Camry", "2024", "Hybrid", "Safety", "Innovation", "Toyota", "Launch"],
+    keywords: [
+      { word: "Lexus", count: 45, relevance: 98 },
+      { word: "Innovation", count: 32, relevance: 92 },
+      { word: "Quality", count: 28, relevance: 89 },
+      { word: "Technology", count: 25, relevance: 86 },
+      { word: "Performance", count: 22, relevance: 83 },
+      { word: "Safety", count: 19, relevance: 80 },
+      { word: "Design", count: 16, relevance: 77 },
+      { word: "Luxury", count: 14, relevance: 74 },
+    ],
     labels: [
-      { name: "Vehicle", confidence: 0.98 },
-      { name: "Presentation", confidence: 0.95 },
-      { name: "Automotive", confidence: 0.92 },
+      { name: "Car", confidence: 99, instances: 156 },
+      { name: "Person", confidence: 95, instances: 45 },
+      { name: "Road", confidence: 92, instances: 89 },
+      { name: "Building", confidence: 88, instances: 34 },
+      { name: "Presentation", confidence: 85, instances: 23 },
     ],
-    emotions: [
-      { type: "Confident", percentage: 75 },
-      { type: "Enthusiastic", percentage: 62 },
-      { type: "Professional", percentage: 88 },
+    brands: [
+      { name: "Lexus", confidence: 99, appearances: 67 },
+      { name: "Toyota", confidence: 97, appearances: 45 },
     ],
-    audioEffects: ["Applause (0:45)", "Music (2:30-3:00)", "Background Chatter (4:10)"],
   };
 
   const transcript = [
-    { time: "00:00", speaker: "Akio Toyoda", text: "Welcome everyone to the launch of the all-new 2024 Toyota Camry." },
-    { time: "00:30", speaker: "Akio Toyoda", text: "This vehicle represents the future of hybrid technology and sustainable mobility." },
-    { time: "01:50", speaker: "Koji Sato", text: "The new Camry features advanced safety systems that set industry standards." },
-    { time: "02:30", speaker: "Koji Sato", text: "We've integrated cutting-edge AI technology for driver assistance." },
+    { time: "00:00", speaker: "Narrator", text: "Welcome to the Lexus ES 2025 campaign showcase. This marks a new era in luxury automotive excellence." },
+    { time: "00:15", speaker: "John Smith", text: "Today we're looking at the innovative design features that make this vehicle stand out in its class." },
+    { time: "00:42", speaker: "Narrator", text: "The ES 2025 represents a perfect blend of luxury, technology, and sustainable performance." },
+    { time: "01:05", speaker: "Sarah Johnson", text: "Let's dive into the advanced safety systems that protect every journey, every passenger." },
+    { time: "01:30", speaker: "Narrator", text: "From intelligent collision detection to adaptive cruise control and lane-keeping assistance." },
+    { time: "02:00", speaker: "John Smith", text: "The hybrid powertrain delivers exceptional efficiency without compromising performance." },
+    { time: "02:30", speaker: "Narrator", text: "Experience the seamless integration of electric and combustion power." },
   ];
 
-  const handleTimeframeClick = (timeframe: string) => {
-    console.log("Jumping to:", timeframe);
+  const handleTimeframeClick = (time: string) => {
+    toast.info(`Jump to ${time}`);
+    // In production, actually seek the video to this timestamp
   };
 
+  // Show restricted access UI for code_red content
+  if (videoData.classification === "code_red") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-8">
+        <Card className="max-w-2xl w-full p-8 text-center">
+          <AlertCircle className="h-16 w-16 mx-auto mb-4 text-destructive" />
+          <h1 className="text-2xl font-bold mb-2">Restricted Content</h1>
+          <p className="text-muted-foreground mb-6">
+            This video is classified as Code Red and requires administrator approval to view.
+          </p>
+          <div className="bg-muted/50 p-4 rounded-lg mb-6">
+            <p className="text-sm font-medium mb-2">{videoData.title}</p>
+            <p className="text-xs text-muted-foreground">Duration: {videoData.duration}</p>
+          </div>
+          <Button onClick={() => setShowRequestDialog(true)} size="lg">
+            Request Access
+          </Button>
+        </Card>
+
+        <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Request Access to Restricted Content</DialogTitle>
+              <DialogDescription>
+                Please provide a detailed business justification for accessing this Code Red classified content.
+                Your request will be reviewed by an administrator.
+              </DialogDescription>
+            </DialogHeader>
+            <Textarea
+              placeholder="Describe your purpose for accessing this content..."
+              value={requestPurpose}
+              onChange={(e) => setRequestPurpose(e.target.value)}
+              rows={5}
+              className="resize-none"
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowRequestDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleRequestAccess} disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Request"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  // Azure-style video player layout
   return (
-    <div className="min-h-screen bg-background">
-      <header className="fixed top-0 left-0 right-0 h-16 glass border-b border-border z-50 flex items-center justify-between px-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header Bar */}
+      <div className="h-16 border-b border-border bg-card flex items-center justify-between px-6 flex-shrink-0">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="font-semibold">{videoData.title}</h1>
-            <p className="text-xs text-muted-foreground">{videoData.duration}</p>
+            <h1 className="text-lg font-semibold">{videoData.title}</h1>
+            <p className="text-xs text-muted-foreground">
+              {videoData.duration} • Uploaded {videoData.uploadedAt}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="h-4 w-4" />
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
             Download
           </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Share2 className="h-4 w-4" />
+          <Button variant="outline" size="sm">
+            <Share2 className="h-4 w-4 mr-2" />
             Share
           </Button>
         </div>
-      </header>
+      </div>
 
-      <div className="pt-16 h-screen flex">
-        <div className="flex-1 bg-black flex items-center justify-center">
-          <video src={videoData.url} controls className="w-full h-full" style={{ maxHeight: "100%" }}>
+      {/* Main Content Area - Two Column Layout */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left: Video Player */}
+        <div className="w-[58%] bg-black flex items-center justify-center border-r border-border">
+          <video 
+            className="w-full h-full object-contain" 
+            controls 
+            poster={videoData.thumbnailUrl}
+            src={videoData.videoUrl}
+          >
             Your browser does not support the video tag.
           </video>
         </div>
 
-        <div className="w-[420px] glass border-l border-border flex flex-col">
+        {/* Right: Insights Panel */}
+        <div className="w-[42%] bg-card flex flex-col">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
-              <TabsTrigger value="insights">Insights</TabsTrigger>
-              <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsList className="w-full justify-start rounded-none border-b h-12 px-4 bg-background">
+              <TabsTrigger value="insights" className="gap-2">
+                <Tag className="h-4 w-4" />
+                Insights
+              </TabsTrigger>
+              <TabsTrigger value="timeline" className="gap-2">
+                <Clock className="h-4 w-4" />
+                Timeline
+              </TabsTrigger>
+              <TabsTrigger value="transcript" className="gap-2">
+                <FileText className="h-4 w-4" />
+                Transcript
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="insights" className="flex-1 m-0">
-              <ScrollArea className="h-[calc(100vh-112px)]">
-                <div className="p-4 space-y-6">
+            {/* Insights Tab */}
+            <TabsContent value="insights" className="flex-1 overflow-hidden m-0">
+              <ScrollArea className="h-full">
+                <div className="p-6 space-y-6">
+                  {/* People Section */}
                   <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <User className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold">People ({insights.people.length})</h3>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Users className="h-5 w-5 text-primary" />
+                      <h3 className="font-semibold text-lg">People</h3>
+                      <Badge variant="secondary">{peopleData.length}</Badge>
                     </div>
                     <div className="space-y-3">
-                      {insights.people.map((person) => (
-                        <div key={person.name} className="p-3 rounded-lg bg-secondary/50 space-y-2">
-                          <div className="flex items-start justify-between gap-3">
-                            <FaceThumbnail 
-                              name={person.name}
-                              photoUrl={person.photoUrl}
-                              role={person.role}
-                              size="md"
-                            />
-                            <Badge variant="outline" className="text-xs shrink-0">{person.appearances} appearances</Badge>
+                      {peopleData.map((person) => (
+                        <Card key={person.id} className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
+                          <div className="flex items-start gap-3">
+                            <Avatar className="h-14 w-14 border-2 border-primary/20">
+                              <AvatarImage src={person.thumbnail} alt={person.name} />
+                              <AvatarFallback className="bg-primary/10">
+                                {person.name.split(" ").map(n => n[0]).join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold">{person.name}</p>
+                              <p className="text-sm text-muted-foreground">{person.role}</p>
+                              <p className="text-xs text-muted-foreground">{person.company}</p>
+                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {person.duration}
+                                </span>
+                                <span>{person.appearances} appearances</span>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {person.timestamps.map((ts, i) => (
+                                  <Badge 
+                                    key={i} 
+                                    variant="outline" 
+                                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs font-mono"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleTimeframeClick(ts);
+                                    }}
+                                  >
+                                    {ts}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            {person.timeframes.map((tf, idx) => (
-                              <button key={idx} onClick={() => handleTimeframeClick(tf)} className="flex items-center gap-2 text-xs text-accent hover:underline w-full text-left">
-                                <Clock className="h-3 w-3" />
-                                {tf}
-                                <ChevronRight className="h-3 w-3 ml-auto" />
-                              </button>
-                            ))}
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Topics Section */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Tag className="h-5 w-5 text-primary" />
+                      <h3 className="font-semibold text-lg">Topics</h3>
+                      <Badge variant="secondary">{insights.topics.length}</Badge>
+                    </div>
+                    <div className="space-y-3">
+                      {insights.topics.map((topic, index) => (
+                        <div key={index} className="space-y-2">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-medium">{topic.name}</p>
+                              <p className="text-xs text-muted-foreground">{topic.count} mentions • {topic.duration}</p>
+                            </div>
+                            <Badge variant="outline" className="ml-2">{topic.confidence}%</Badge>
                           </div>
+                          <Progress value={topic.confidence} className="h-1.5" />
                         </div>
                       ))}
                     </div>
@@ -159,78 +316,46 @@ const VideoDetail = () => {
 
                   <Separator />
 
+                  {/* Keywords Section */}
                   <div>
-                    <h3 className="font-semibold mb-3">Observed People</h3>
-                    <div className="space-y-2">
-                      {insights.observedPeople.map((person) => (
-                        <button key={person.id} onClick={() => handleTimeframeClick(person.timeframe)} className="w-full p-2 rounded bg-secondary/30 hover:bg-secondary/50 transition-smooth flex items-center justify-between text-left">
-                          <span className="text-sm">{person.face}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">{(person.confidence * 100).toFixed(0)}%</span>
-                            <span className="text-xs text-accent">{person.timeframe}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <MessageSquare className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold">Topics</h3>
-                    </div>
-                    <div className="space-y-2">
-                      {insights.topics.map((topic) => (
-                        <div key={topic.name} className="space-y-1">
-                          <div className="flex items-center justify-between text-sm">
-                            <span>{topic.name}</span>
-                            <span className="text-xs text-muted-foreground">{(topic.relevance * 100).toFixed(0)}%</span>
-                          </div>
-                          <Progress value={topic.relevance * 100} className="h-1" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Volume2 className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold">Audio Effects</h3>
-                    </div>
-                    <div className="space-y-1">
-                      {insights.audioEffects.map((effect, idx) => (
-                        <div key={idx} className="text-sm text-muted-foreground">{effect}</div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Tag className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold">Keywords</h3>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Tag className="h-5 w-5 text-primary" />
+                      <h3 className="font-semibold text-lg">Keywords</h3>
+                      <Badge variant="secondary">{insights.keywords.length}</Badge>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {insights.keywords.map((keyword) => (
-                        <Badge key={keyword} variant="secondary">{keyword}</Badge>
+                      {insights.keywords.map((keyword, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="secondary" 
+                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                        >
+                          {keyword.word} <span className="ml-1 text-xs opacity-70">({keyword.count})</span>
+                        </Badge>
                       ))}
                     </div>
                   </div>
 
                   <Separator />
 
+                  {/* Labels Section */}
                   <div>
-                    <h3 className="font-semibold mb-3">Labels</h3>
-                    <div className="space-y-2">
-                      {insights.labels.map((label) => (
-                        <div key={label.name} className="flex items-center justify-between text-sm">
-                          <span>{label.name}</span>
-                          <span className="text-xs text-muted-foreground">{(label.confidence * 100).toFixed(0)}%</span>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Tag className="h-5 w-5 text-primary" />
+                      <h3 className="font-semibold text-lg">Labels</h3>
+                      <Badge variant="secondary">{insights.labels.length}</Badge>
+                    </div>
+                    <div className="space-y-3">
+                      {insights.labels.map((label, index) => (
+                        <div key={index} className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">{label.name}</span>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span className="text-xs">{label.instances} instances</span>
+                              <Badge variant="outline">{label.confidence}%</Badge>
+                            </div>
+                          </div>
+                          <Progress value={label.confidence} className="h-1.5" />
                         </div>
                       ))}
                     </div>
@@ -238,16 +363,21 @@ const VideoDetail = () => {
 
                   <Separator />
 
+                  {/* Brands Section */}
                   <div>
-                    <h3 className="font-semibold mb-3">Emotions</h3>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Tag className="h-5 w-5 text-primary" />
+                      <h3 className="font-semibold text-lg">Brands</h3>
+                      <Badge variant="secondary">{insights.brands.length}</Badge>
+                    </div>
                     <div className="space-y-2">
-                      {insights.emotions.map((emotion) => (
-                        <div key={emotion.type} className="space-y-1">
-                          <div className="flex items-center justify-between text-sm">
-                            <span>{emotion.type}</span>
-                            <span className="text-xs text-muted-foreground">{emotion.percentage}%</span>
+                      {insights.brands.map((brand, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
+                          <span className="font-medium">{brand.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">{brand.appearances} appearances</span>
+                            <Badge variant="outline">{brand.confidence}%</Badge>
                           </div>
-                          <Progress value={emotion.percentage} className="h-1" />
                         </div>
                       ))}
                     </div>
@@ -256,23 +386,38 @@ const VideoDetail = () => {
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="timeline" className="flex-1 m-0">
-              <ScrollArea className="h-[calc(100vh-112px)]">
-                <div className="p-4 space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-3">Transcription</h3>
-                    <div className="space-y-3">
-                      {transcript.map((entry, idx) => (
-                        <button key={idx} onClick={() => handleTimeframeClick(entry.time)} className="w-full p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-smooth text-left space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono text-accent">{entry.time}</span>
-                            <span className="text-xs text-muted-foreground">{entry.speaker}</span>
-                          </div>
-                          <p className="text-sm">{entry.text}</p>
-                        </button>
-                      ))}
+            {/* Timeline Tab */}
+            <TabsContent value="timeline" className="flex-1 overflow-hidden m-0">
+              <ScrollArea className="h-full">
+                <div className="p-6">
+                  <p className="text-sm text-muted-foreground">
+                    Visual timeline with keyframes will appear here. Click timestamps in the transcript tab to navigate the video.
+                  </p>
+                </div>
+              </ScrollArea>
+            </TabsContent>
+
+            {/* Transcript Tab */}
+            <TabsContent value="transcript" className="flex-1 overflow-hidden m-0">
+              <ScrollArea className="h-full">
+                <div className="p-6 space-y-3">
+                  {transcript.map((entry, index) => (
+                    <div 
+                      key={index} 
+                      className="flex gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
+                      onClick={() => handleTimeframeClick(entry.time)}
+                    >
+                      <div className="flex-shrink-0">
+                        <Badge variant="outline" className="font-mono text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          {entry.time}
+                        </Badge>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm mb-1 text-primary">{entry.speaker}</p>
+                        <p className="text-sm text-foreground leading-relaxed">{entry.text}</p>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </ScrollArea>
             </TabsContent>

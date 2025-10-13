@@ -26,6 +26,8 @@ import PopulateLibraries from "./pages/PopulateLibraries";
 import TextToSpeech from "./pages/TextToSpeech";
 import SpeechToText from "./pages/SpeechToText";
 import NotFound from "./pages/NotFound";
+import PhotoDetail from "./pages/PhotoDetail";
+import Requests from "./pages/Requests";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,8 @@ const AppContent = () => {
           <Route path="/videos" element={<Videos />} />
           <Route path="/videos/:id" element={<VideoDetail />} />
           <Route path="/photos" element={<Photos />} />
+          <Route path="/photos/:id" element={<PhotoDetail />} />
+          <Route path="/requests" element={<Requests />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/populate-libraries" element={<PopulateLibraries />} />
           <Route path="/text-to-speech" element={<TextToSpeech />} />

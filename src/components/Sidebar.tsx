@@ -33,6 +33,7 @@ const menuItems = [
   { icon: Volume2, label: "Text-to-Speech", path: "/text-to-speech" },
   { icon: Database, label: "Populate Libraries", path: "/populate-libraries" },
   { icon: Users, label: "Users", path: "/users" },
+  { icon: FileText, label: "Requests", path: "/requests" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
