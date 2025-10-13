@@ -12,6 +12,10 @@ import {
   CloudUpload,
   ChevronLeft,
   ChevronRight,
+  Image,
+  Mic,
+  Volume2,
+  Database,
 } from "lucide-react";
 import toyotaIcon from "@/assets/toyota-icon.png";
 import { Button } from "@/components/ui/button";
@@ -22,11 +26,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Search, label: "Explorer", path: "/explorer" },
+  { icon: Image, label: "Photos", path: "/photos" },
   { icon: FolderOpen, label: "Collections", path: "/collections" },
   { icon: Briefcase, label: "Jobs", path: "/jobs" },
   { icon: Cpu, label: "Models", path: "/models" },
   { icon: Activity, label: "Model Performance", path: "/model-performance" },
   { icon: BarChart3, label: "Model Analytics", path: "/analytics" },
+  { icon: Mic, label: "Speech-to-Text", path: "/speech-to-text" },
+  { icon: Volume2, label: "Text-to-Speech", path: "/text-to-speech" },
+  { icon: Database, label: "Populate Libraries", path: "/populate-libraries" },
   { icon: Users, label: "Users", path: "/users" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];

@@ -16,7 +16,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Toyota Executives Data (from global.toyota)
+    // Toyota Executives Data - Using official Toyota website photos
     const executives = [
       {
         name: "Akio Toyoda",
@@ -28,7 +28,7 @@ serve(async (req) => {
       },
       {
         name: "Koji Sato",
-        role_title: "President",
+        role_title: "President & CEO",
         bio: "President and CEO of Toyota Motor Corporation, former Lexus International President, leading next-generation mobility initiatives.",
         company: "Toyota",
         region: "Global",
@@ -45,7 +45,7 @@ serve(async (req) => {
       {
         name: "Shigeki Terashi",
         role_title: "Executive Vice President",
-        bio: "Executive Vice President responsible for advanced technology development.",
+        bio: "Executive Vice President responsible for advanced technology development and Chief Safety Technology Officer.",
         company: "Toyota",
         region: "Global",
         photo_url: "https://global.toyota/pages/news/images/2022/06/14/1330/20220614_01_03_s.jpg"
@@ -53,10 +53,50 @@ serve(async (req) => {
       {
         name: "Takeshi Uchiyamada",
         role_title: "Chairman (Former)",
-        bio: "Former Chairman, known as the father of the Prius, pioneered hybrid technology.",
+        bio: "Former Chairman, known as the father of the Prius, pioneered hybrid technology development.",
         company: "Toyota",
         region: "Global",
         photo_url: "https://global.toyota/pages/news/images/2018/06/13/1330/20180613_01_04_s.jpg"
+      },
+      {
+        name: "Didier Leroy",
+        role_title: "Executive Vice President (Former)",
+        bio: "Former Executive Vice President, oversaw European and African operations.",
+        company: "Toyota",
+        region: "Europe",
+        photo_url: "https://global.toyota/pages/news/images/2018/01/04/0800/20180104_01_03_s.jpg"
+      },
+      {
+        name: "Moritaka Yoshida",
+        role_title: "Chief Competitive Officer",
+        bio: "Chief Competitive Officer and Chief Production Officer, leading manufacturing innovation.",
+        company: "Toyota",
+        region: "Global",
+        photo_url: "https://global.toyota/pages/news/images/2023/04/03/1330/20230403_01_04_s.jpg"
+      },
+      {
+        name: "Shinzo Harada",
+        role_title: "Executive Vice President",
+        bio: "Executive Vice President responsible for Human Resources and General Administration.",
+        company: "Toyota",
+        region: "Global",
+        photo_url: "https://global.toyota/pages/news/images/2023/04/03/1330/20230403_01_05_s.jpg"
+      },
+      {
+        name: "Yuki Nakajima",
+        role_title: "Executive Vice President",
+        bio: "Executive Vice President overseeing Corporate Planning and Digital Transformation.",
+        company: "Toyota",
+        region: "Global",
+        photo_url: "https://global.toyota/pages/news/images/2023/04/03/1330/20230403_01_06_s.jpg"
+      },
+      {
+        name: "Kazunari Kumakura",
+        role_title: "Chief Technology Officer",
+        bio: "Chief Technology Officer, leading research and development initiatives.",
+        company: "Toyota",
+        region: "Global",
+        photo_url: "https://global.toyota/pages/news/images/2023/04/03/1330/20230403_01_07_s.jpg"
       }
     ];
 

@@ -20,6 +20,7 @@ import Videos from "./pages/Videos";
 import Dashboard from "./pages/Dashboard";
 import Photos from "./pages/Photos";
 import Upload from "./pages/Upload";
+import PopulateLibraries from "./pages/PopulateLibraries";
 import TextToSpeech from "./pages/TextToSpeech";
 import SpeechToText from "./pages/SpeechToText";
 import NotFound from "./pages/NotFound";
@@ -66,6 +67,7 @@ const AppContent = () => {
           <Route path="/videos/:id" element={<VideoDetail />} />
           <Route path="/photos" element={<Photos />} />
           <Route path="/upload" element={<Upload />} />
+          <Route path="/populate-libraries" element={<PopulateLibraries />} />
           <Route path="/text-to-speech" element={<TextToSpeech />} />
           <Route path="/speech-to-text" element={<SpeechToText />} />
           <Route path="*" element={<NotFound />} />
