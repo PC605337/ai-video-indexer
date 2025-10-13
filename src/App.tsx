@@ -26,42 +26,50 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex min-h-screen w-full bg-background">
-            <Sidebar />
-            <main className="flex-1 ml-64 transition-all duration-300 [body:has(.w-16)_&]:ml-16">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/explorer" element={<Explorer />} />
-                <Route path="/collections" element={<Collections />} />
-                <Route path="/collections/:slug" element={<CollectionDetail />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/models" element={<Models />} />
-                <Route path="/model-performance" element={<ModelPerformance />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/users" element={<Users />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/videos" element={<Videos />} />
-                <Route path="/videos/:id" element={<VideoDetail />} />
-                <Route path="/photos" element={<Photos />} />
-                <Route path="/upload" element={<Upload />} />
-                <Route path="/text-to-speech" element={<TextToSpeech />} />
-                <Route path="/speech-to-text" element={<SpeechToText />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-          </div>
-        </SidebarProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <SidebarProvider defaultOpen={true}>
+            <AppContent />
+          </SidebarProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
+
+const AppContent = () => {
+  return (
+    <div className="flex min-h-screen w-full bg-background">
+      <Sidebar />
+      <main className="flex-1 transition-all duration-300">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/explorer" element={<Explorer />} />
+          <Route path="/collections" element={<Collections />} />
+          <Route path="/collections/:slug" element={<CollectionDetail />} />
+          <Route path="/jobs" element={<Jobs />} />
+          <Route path="/models" element={<Models />} />
+          <Route path="/model-performance" element={<ModelPerformance />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/videos" element={<Videos />} />
+          <Route path="/videos/:id" element={<VideoDetail />} />
+          <Route path="/photos" element={<Photos />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/text-to-speech" element={<TextToSpeech />} />
+          <Route path="/speech-to-text" element={<SpeechToText />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+    </div>
+  );
+};
 
 export default App;

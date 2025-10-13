@@ -39,7 +39,7 @@ export const Sidebar = () => {
   return (
     <aside 
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen glass border-r border-border transition-all duration-300",
+        "h-screen glass border-r border-border transition-all duration-300 shrink-0",
         open ? "w-64" : "w-16"
       )}
     >
