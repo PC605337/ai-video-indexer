@@ -7,7 +7,7 @@ export const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="fixed left-64 right-0 top-0 z-30 h-16 glass border-b border-border">
+    <header className="fixed left-0 right-0 top-0 z-30 h-16 glass border-b border-border">
       <div className="flex h-full items-center justify-between px-6">
         {/* Search */}
         <div className="flex-1 max-w-2xl">
