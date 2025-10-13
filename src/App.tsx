@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import Home from "./pages/Home";
 import Explorer from "./pages/Explorer";
 import Collections from "./pages/Collections";
@@ -35,31 +35,28 @@ const App = () => (
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full bg-background">
             <Sidebar />
-            <SidebarInset className="flex-1">
-              <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/explorer" element={<Explorer />} />
-                  <Route path="/collections" element={<Collections />} />
-                  <Route path="/collections/:slug" element={<CollectionDetail />} />
-                  <Route path="/jobs" element={<Jobs />} />
-                  <Route path="/models" element={<Models />} />
-                  <Route path="/model-performance" element={<ModelPerformance />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/videos" element={<Videos />} />
-                  <Route path="/videos/:id" element={<VideoDetail />} />
-                  <Route path="/photos" element={<Photos />} />
-                  <Route path="/upload" element={<Upload />} />
-                  <Route path="/text-to-speech" element={<TextToSpeech />} />
-                  <Route path="/speech-to-text" element={<SpeechToText />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-            </SidebarInset>
+            <main className="flex-1 ml-64 transition-all duration-300 [body:has(.w-16)_&]:ml-16">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/explorer" element={<Explorer />} />
+                <Route path="/collections" element={<Collections />} />
+                <Route path="/collections/:slug" element={<CollectionDetail />} />
+                <Route path="/jobs" element={<Jobs />} />
+                <Route path="/models" element={<Models />} />
+                <Route path="/model-performance" element={<ModelPerformance />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/videos" element={<Videos />} />
+                <Route path="/videos/:id" element={<VideoDetail />} />
+                <Route path="/photos" element={<Photos />} />
+                <Route path="/upload" element={<Upload />} />
+                <Route path="/text-to-speech" element={<TextToSpeech />} />
+                <Route path="/speech-to-text" element={<SpeechToText />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
           </div>
         </SidebarProvider>
       </BrowserRouter>
