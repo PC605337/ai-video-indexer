@@ -71,7 +71,7 @@ const Photos = () => {
   const [sortBy, setSortBy] = useState("date-desc");
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
   const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
-  const itemsPerPage = 20;
+  const itemsPerPage = 12; // Adjusted for better pagination visibility
 
   // Mock created_at dates and file_size for photos
   const photosWithMetadata = photos.map((photo, idx) => ({
