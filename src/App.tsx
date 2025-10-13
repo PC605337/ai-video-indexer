@@ -14,6 +14,11 @@ import Analytics from "./pages/Analytics";
 import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import VideoDetail from "./pages/VideoDetail";
+import Videos from "./pages/Videos";
+import Photos from "./pages/Photos";
+import Upload from "./pages/Upload";
+import TextToSpeech from "./pages/TextToSpeech";
+import SpeechToText from "./pages/SpeechToText";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,7 +40,12 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/users" element={<Users />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/videos" element={<Videos />} />
           <Route path="/videos/:id" element={<VideoDetail />} />
+          <Route path="/photos" element={<Photos />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/text-to-speech" element={<TextToSpeech />} />
+          <Route path="/speech-to-text" element={<SpeechToText />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
