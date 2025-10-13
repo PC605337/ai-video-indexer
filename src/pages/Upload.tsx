@@ -44,6 +44,13 @@ export default function Upload() {
     logoDetection: true,
     speakerDiarization: false,
     autoTagging: true,
+    videoSummary: true,
+    keywords: true,
+    topics: true,
+    namedEntityRecognition: true,
+    ocr: true,
+    keyScenesKeyframes: true,
+    unknownPeople: true,
   });
   const [translationLanguages, setTranslationLanguages] = useState<string[]>([]);
   const [textToTranslate, setTextToTranslate] = useState("");
@@ -432,7 +439,7 @@ export default function Upload() {
             <Card className="p-6 glass">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                AI Processing Options (Powered by Lovable AI)
+                AI Processing Options
               </h3>
               <div className="grid md:grid-cols-2 gap-3">
                 {[
@@ -447,6 +454,13 @@ export default function Upload() {
                   { id: "captionGeneration", label: "Auto-caption (EN/JP/ES)", icon: Languages, description: "Generate multilingual captions" },
                   { id: "autoTagging", label: "Auto-tagging & Metadata", icon: Sparkles, description: "Smart content tagging" },
                   { id: "translation", label: "Multi-language Translation", icon: Languages, description: "Translate to 6+ languages" },
+                  { id: "videoSummary", label: "AI Generated Video Summary", icon: FileVideo, description: "Generate comprehensive video summaries" },
+                  { id: "keywords", label: "Keywords", icon: Sparkles, description: "Extract key terms and phrases" },
+                  { id: "topics", label: "Topics", icon: Sparkles, description: "Identify main topics and themes" },
+                  { id: "namedEntityRecognition", label: "Named Entity Recognition", icon: Sparkles, description: "Detect names, places, organizations" },
+                  { id: "ocr", label: "OCR", icon: ImageIcon, description: "Extract text from images and videos" },
+                  { id: "keyScenesKeyframes", label: "Key Scenes and Keyframes", icon: FileVideo, description: "Identify important moments" },
+                  { id: "unknownPeople", label: "Unknown People", icon: ImageIcon, description: "Detect unidentified individuals" },
                 ].map((option) => {
                   const Icon = option.icon;
                   return (
@@ -472,11 +486,6 @@ export default function Upload() {
                     </div>
                   );
                 })}
-              </div>
-              <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
-                <p className="text-xs text-muted-foreground">
-                  ✨ All AI features powered by Lovable AI (Google Gemini 2.5 Flash) - Free during beta period
-                </p>
               </div>
             </Card>
 
