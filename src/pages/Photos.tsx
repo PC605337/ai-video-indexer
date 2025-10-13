@@ -75,6 +75,31 @@ const Photos = () => {
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
   const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
   const itemsPerPage = 12; // Adjusted for better pagination visibility
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
+
+  const handleEditPhoto = (e: React.MouseEvent, photo: any) => {
+    e.stopPropagation();
+    setSelectedPhoto(photo);
+    setShowEditDialog(true);
+  };
+
+  const handleOpenInEditor = async (software: string) => {
+    try {
+      await supabase.from("asset_edit_sessions").insert([{
+        asset_id: selectedPhoto.id,
+        editor_id: "00000000-0000-0000-0000-000000000000",
+        software: software,
+        status: "in_progress",
+        metadata: { opened_from: "photos_page" },
+      }]);
+      toast.success(`Opening in ${software}...`);
+      setShowEditDialog(false);
+    } catch (error) {
+      toast.error("Failed to open in editor");
+      console.error(error);
+    }
+  };
 
   // Mock created_at dates and file_size for photos
   const photosWithMetadata = photos.map((photo, idx) => ({
@@ -324,6 +349,55 @@ const Photos = () => {
           </Pagination>
         )}
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-md z-[100] bg-background">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit3 className="h-5 w-5 text-primary" />
+              Open in Editing Software
+            </DialogTitle>
+            <DialogDescription>Select your preferred editing software.</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 mt-4">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-3 h-auto py-3" 
+              onClick={() => handleOpenInEditor("Adobe Photoshop")}
+            >
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10">
+                <ImageIcon className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="font-semibold">Adobe Photoshop</p>
+                <p className="text-xs text-muted-foreground">Professional photo editing</p>
+              </div>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-3 h-auto py-3" 
+              onClick={() => handleOpenInEditor("Adobe Lightroom")}
+            >
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-500/10">
+                <ImageIcon className="h-5 w-5 text-cyan-600" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="font-semibold">Adobe Lightroom</p>
+                <p className="text-xs text-muted-foreground">Photo management & editing</p>
+              </div>
+            </Button>
+          </div>
+
+          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+            <p className="text-xs text-muted-foreground">
+              💡 After editing, open the detail page to submit for approval.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
