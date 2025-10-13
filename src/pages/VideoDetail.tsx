@@ -6,12 +6,30 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Download, Share2, User, MessageSquare, Tag, Volume2, Clock, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { FaceThumbnail } from "@/components/FaceThumbnail";
 
 const VideoDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("insights");
+  const [faceLibrary, setFaceLibrary] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadFaceLibrary = async () => {
+      const { data } = await supabase
+        .from("face_library")
+        .select("*")
+        .order("name");
+      
+      if (data) {
+        setFaceLibrary(data);
+      }
+    };
+
+    loadFaceLibrary();
+  }, []);
 
   const videoData = {
     title: "Toyota Camry 2024 Launch Event",
@@ -19,14 +37,23 @@ const VideoDetail = () => {
     duration: "5:42",
   };
 
+  // Map face library data to insights
+  const peopleData = faceLibrary.slice(0, 5).map((exec, idx) => ({
+    name: exec.name,
+    role: exec.role_title,
+    photoUrl: exec.photo_url,
+    appearances: Math.floor(Math.random() * 15) + 5,
+    timeframes: [
+      `${idx}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}-${idx + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
+      `${idx + 2}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}-${idx + 3}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`
+    ]
+  }));
+
   const insights = {
-    people: [
-      { name: "Akio Toyoda", role: "Chairman", appearances: 12, timeframes: ["0:30-1:45", "3:20-4:10"] },
-      { name: "Koji Sato", role: "President", appearances: 8, timeframes: ["1:50-2:30", "4:15-5:20"] },
-    ],
+    people: peopleData,
     observedPeople: [
-      { id: 1, face: "Person #1", confidence: 0.95, timeframe: "2:10" },
-      { id: 2, face: "Person #2", confidence: 0.88, timeframe: "3:45" },
+      { id: 1, face: "Unknown Person #1", confidence: 0.95, timeframe: "2:10" },
+      { id: 2, face: "Unknown Person #2", confidence: 0.88, timeframe: "3:45" },
     ],
     topics: [
       { name: "Product Launch", relevance: 0.92 },
@@ -107,12 +134,14 @@ const VideoDetail = () => {
                     <div className="space-y-3">
                       {insights.people.map((person) => (
                         <div key={person.name} className="p-3 rounded-lg bg-secondary/50 space-y-2">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <div className="font-medium">{person.name}</div>
-                              <div className="text-xs text-muted-foreground">{person.role}</div>
-                            </div>
-                            <Badge variant="outline" className="text-xs">{person.appearances} appearances</Badge>
+                          <div className="flex items-start justify-between gap-3">
+                            <FaceThumbnail 
+                              name={person.name}
+                              photoUrl={person.photoUrl}
+                              role={person.role}
+                              size="md"
+                            />
+                            <Badge variant="outline" className="text-xs shrink-0">{person.appearances} appearances</Badge>
                           </div>
                           <div className="space-y-1">
                             {person.timeframes.map((tf, idx) => (
