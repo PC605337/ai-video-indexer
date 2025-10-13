@@ -44,12 +44,9 @@ const App = () => {
 };
 
 const AppContent = () => {
-  const location = useLocation();
-  const showSidebar = location.pathname !== '/';
-
   return (
     <div className="flex min-h-screen w-full bg-background">
-      {showSidebar && <Sidebar />}
+      <Sidebar />
       <main className="flex-1 transition-all duration-300">
         <Routes>
           <Route path="/" element={<Home />} />
