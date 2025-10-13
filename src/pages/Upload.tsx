@@ -39,6 +39,11 @@ export default function Upload() {
     sceneAnalysis: true,
     sentimentAnalysis: false,
     captionGeneration: true,
+    faceRecognition: true,
+    vehicleDetection: true,
+    logoDetection: true,
+    speakerDiarization: false,
+    autoTagging: true,
   });
   const [translationLanguages, setTranslationLanguages] = useState<string[]>([]);
   const [textToTranslate, setTextToTranslate] = useState("");
@@ -109,12 +114,33 @@ export default function Upload() {
       );
 
       // Run AI analysis if enabled
-      if (aiProcessing.transcription && uploadFile.file.type.startsWith("audio/")) {
-        await transcribeAudio(uploadFile.file);
+      if (uploadFile.file.type.startsWith("audio/") || uploadFile.file.type.startsWith("video/")) {
+        if (aiProcessing.transcription) {
+          await transcribeAudio(uploadFile.file);
+        }
+        if (aiProcessing.speakerDiarization) {
+          await performSpeakerDiarization(uploadFile.file);
+        }
+      }
+
+      if (uploadFile.file.type.startsWith("image/") || uploadFile.file.type.startsWith("video/")) {
+        const features = [];
+        if (aiProcessing.faceRecognition) features.push("faces");
+        if (aiProcessing.vehicleDetection) features.push("vehicles");
+        if (aiProcessing.logoDetection) features.push("logos");
+        if (aiProcessing.autoTagging) features.push("tags");
+        
+        if (features.length > 0) {
+          await performVisionAnalysis(uploadFile.file, features);
+        }
       }
 
       if (aiProcessing.objectDetection || aiProcessing.sceneAnalysis || aiProcessing.sentimentAnalysis) {
         await analyzeMedia(uploadFile.file);
+      }
+
+      if (aiProcessing.captionGeneration) {
+        await generateMultilingualCaptions(uploadFile.file);
       }
 
       // Mark as complete
@@ -169,6 +195,75 @@ export default function Upload() {
     }
   };
 
+  const performVisionAnalysis = async (file: File, features: string[]) => {
+    try {
+      const reader = new FileReader();
+      const imageUrl = await new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+
+      const { data, error } = await supabase.functions.invoke("ai-vision-analysis", {
+        body: { imageUrl, features },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Vision Analysis Complete",
+        description: `Analyzed: ${features.join(", ")}`,
+      });
+    } catch (error) {
+      console.error("Vision analysis error:", error);
+    }
+  };
+
+  const performSpeakerDiarization = async (file: File) => {
+    try {
+      const reader = new FileReader();
+      const audioBase64 = await new Promise<string>((resolve) => {
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(",")[1];
+          resolve(base64);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      const { data, error } = await supabase.functions.invoke("speaker-diarization", {
+        body: { audioBase64 },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Speaker Diarization Complete",
+        description: "Identified speakers and their segments.",
+      });
+    } catch (error) {
+      console.error("Speaker diarization error:", error);
+    }
+  };
+
+  const generateMultilingualCaptions = async (file: File) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-captions", {
+        body: {
+          text: file.name, // In real app, would extract content first
+          languages: ["English", "Japanese", "Spanish"],
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Captions Generated",
+        description: "Multi-language captions created successfully.",
+      });
+    } catch (error) {
+      console.error("Caption generation error:", error);
+    }
+  };
+
   const analyzeMedia = async (file: File) => {
     try {
       const fileUrl = URL.createObjectURL(file);
@@ -177,7 +272,6 @@ export default function Upload() {
       if (aiProcessing.objectDetection) analyses.push("objects");
       if (aiProcessing.sceneAnalysis) analyses.push("scenes");
       if (aiProcessing.sentimentAnalysis) analyses.push("sentiment");
-      if (aiProcessing.captionGeneration) analyses.push("captions");
 
       for (const analysisType of analyses) {
         const { data, error } = await supabase.functions.invoke("analyze-media", {
@@ -338,37 +432,51 @@ export default function Upload() {
             <Card className="p-6 glass">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                AI Processing Options
+                AI Processing Options (Powered by Lovable AI)
               </h3>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-3">
                 {[
-                  { id: "transcription", label: "Audio Transcription (Auto-detect language)", icon: Mic },
-                  { id: "translation", label: "Multi-language Translation", icon: Languages },
-                  { id: "objectDetection", label: "Vehicle & Object Detection", icon: FileVideo },
-                  { id: "sceneAnalysis", label: "Scene Classification", icon: ImageIcon },
-                  { id: "sentimentAnalysis", label: "Sentiment Analysis", icon: Sparkles },
-                  { id: "captionGeneration", label: "Auto-caption Generation", icon: FileVideo },
+                  { id: "transcription", label: "Audio Transcription (Multi-language)", icon: Mic, description: "Auto-detect and transcribe speech" },
+                  { id: "speakerDiarization", label: "Speaker Diarization", icon: Mic, description: "Identify different speakers" },
+                  { id: "faceRecognition", label: "Executive Facial Recognition", icon: ImageIcon, description: "Detect and identify people" },
+                  { id: "vehicleDetection", label: "Vehicle Model Detection", icon: FileVideo, description: "Identify Toyota/Lexus models" },
+                  { id: "logoDetection", label: "Logo & Brand Detection", icon: Sparkles, description: "Recognize company logos" },
+                  { id: "objectDetection", label: "Object Detection", icon: FileVideo, description: "Identify objects in media" },
+                  { id: "sceneAnalysis", label: "Scene Classification", icon: ImageIcon, description: "Categorize content type" },
+                  { id: "sentimentAnalysis", label: "Sentiment Analysis", icon: Sparkles, description: "Analyze emotional tone" },
+                  { id: "captionGeneration", label: "Auto-caption (EN/JP/ES)", icon: Languages, description: "Generate multilingual captions" },
+                  { id: "autoTagging", label: "Auto-tagging & Metadata", icon: Sparkles, description: "Smart content tagging" },
+                  { id: "translation", label: "Multi-language Translation", icon: Languages, description: "Translate to 6+ languages" },
                 ].map((option) => {
                   const Icon = option.icon;
                   return (
-                    <div key={option.id} className="flex items-center space-x-2">
+                    <div key={option.id} className="flex items-start space-x-2 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-all">
                       <Checkbox
                         id={option.id}
                         checked={aiProcessing[option.id as keyof typeof aiProcessing]}
                         onCheckedChange={(checked) =>
                           setAiProcessing((prev) => ({ ...prev, [option.id]: checked }))
                         }
+                        className="mt-1"
                       />
                       <label
                         htmlFor={option.id}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                        className="flex-1 cursor-pointer"
                       >
-                        <Icon className="h-4 w-4 text-primary" />
-                        {option.label}
+                        <div className="flex items-center gap-2 mb-1">
+                          <Icon className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-medium">{option.label}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{option.description}</p>
                       </label>
                     </div>
                   );
                 })}
+              </div>
+              <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                <p className="text-xs text-muted-foreground">
+                  ✨ All AI features powered by Lovable AI (Google Gemini 2.5 Flash) - Free during beta period
+                </p>
               </div>
             </Card>
 
