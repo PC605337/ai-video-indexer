@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { EditorToolbar } from "@/components/EditorToolbar";
 import { ReviewPanel } from "@/components/ReviewPanel";
 import { FilePathTraceability } from "@/components/FilePathTraceability";
+import { CaptionControls } from "@/components/CaptionControls";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -451,6 +452,13 @@ const VideoDetail = () => {
                   </div>
                 </PopoverContent>
               </Popover>
+
+              {/* Caption Controls */}
+              <CaptionControls 
+                onCaptionChange={(enabled, language) => {
+                  toast.info(`Captions ${enabled ? 'enabled' : 'disabled'}${enabled ? ` (${language})` : ''}`);
+                }}
+              />
 
               <Button variant="outline" size="sm" className="h-8">
                 <Download className="h-3.5 w-3.5" />
