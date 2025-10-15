@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
-import toyotaIcon from "@/assets/toyota-icon.png";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -30,9 +29,15 @@ export const Header = () => {
             className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => navigate('/')}
           >
-            <img src={toyotaIcon} alt="AI Platform" className="h-8 w-8 shrink-0" />
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
+              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-white">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" fillOpacity="0.9"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
             <div>
-              <h1 className="text-lg font-bold gradient-text">AI Indexer</h1>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">AI Indexer</h1>
               <p className="text-xs text-muted-foreground">Enterprise Platform</p>
             </div>
           </div>
