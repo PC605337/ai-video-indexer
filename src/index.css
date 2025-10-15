@@ -47,6 +47,13 @@ All colors MUST be HSL.
     --warning: 43 100% 50%;
     --warning-foreground: 0 0% 0%;
 
+    /* Chart colors - Professional palette */
+    --chart-1: 200 100% 50%;  /* Blue */
+    --chart-2: 270 80% 60%;   /* Purple */
+    --chart-3: 160 70% 50%;   /* Teal/Green */
+    --chart-4: 30 90% 55%;    /* Orange */
+    --chart-5: 330 80% 60%;   /* Pink */
+
     /* Sidebar */
     --sidebar-background: 240 7% 8%;
     --sidebar-foreground: 0 0% 100%;
