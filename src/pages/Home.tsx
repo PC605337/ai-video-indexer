@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Shield, Zap, Mic, Languages, FileVideo, Image as ImageIcon, Eye, Brain, AlertCircle } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroVideo from "@/assets/hero-video.mov";
 
 const features = [
   {
@@ -55,9 +55,12 @@ export default function Home() {
       <section className="relative min-h-screen flex items-start justify-center overflow-hidden pt-20">
         {/* Background */}
         <div className="absolute inset-0">
-          <img
-            src={heroBg}
-            alt="AI Platform Background"
+          <video
+            src={heroVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
