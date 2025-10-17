@@ -1,7 +1,17 @@
-import { Bell, User, Menu, CloudUpload } from "lucide-react";
+import { Bell, User, Menu, CloudUpload, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -9,6 +19,15 @@ export const Header = () => {
   const { toggleSidebar } = useSidebar();
   const showSidebarToggle = location.pathname !== '/';
   const showHeaderActions = location.pathname !== '/';
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const searchQuery = e.currentTarget.value.trim();
+      if (searchQuery) {
+        navigate(`/explorer?q=${encodeURIComponent(searchQuery)}`);
+      }
+    }
+  };
 
   return (
     <header className="fixed left-0 right-0 top-0 z-30 h-16 glass border-b border-border">
@@ -43,9 +62,23 @@ export const Header = () => {
           </div>
         </div>
 
+        {/* Search */}
+        {showHeaderActions && (
+          <div className="flex-1 max-w-xl mx-8">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search across all media..."
+                className="w-full pl-9 bg-muted/50"
+                onKeyDown={handleSearch}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         {showHeaderActions && (
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
               size="icon" 
@@ -64,14 +97,26 @@ export const Header = () => {
               <Bell className="h-5 w-5" />
               <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => navigate('/users')}
-              title="User Profile"
-            >
-              <User className="h-5 w-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings')}>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Log out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>
