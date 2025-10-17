@@ -41,7 +41,6 @@ const menuItems = [
 
 const uploadItems = [
   { icon: CloudUpload, label: "Upload Media", path: "/upload" },
-  { icon: Database, label: "Populate Libraries", path: "/populate-libraries" },
   { icon: Briefcase, label: "Jobs", path: "/jobs" },
 ];
 

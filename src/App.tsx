@@ -88,7 +88,6 @@ const AppContent = () => {
           <Route path="/photos/:id" element={<PhotoDetail />} />
           <Route path="/requests" element={<Requests />} />
           <Route path="/upload" element={<Upload />} />
-          <Route path="/populate-libraries" element={<PopulateLibraries />} />
           <Route path="/text-to-speech" element={<TextToSpeech />} />
           <Route path="/speech-to-text" element={<SpeechToText />} />
           <Route path="/activity-log" element={<ActivityLog />} />

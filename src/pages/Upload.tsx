@@ -14,9 +14,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload as UploadIcon, X, CheckCircle, AlertCircle, Mic, Languages, Sparkles, FileVideo, Image as ImageIcon } from "lucide-react";
+import { Upload as UploadIcon, X, CheckCircle, AlertCircle, Mic, Languages, Sparkles, FileVideo, Image as ImageIcon, Youtube, Database, Loader2, CheckCircle2 } from "lucide-react";
+  // Populate Libraries state
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [isIndexing, setIsIndexing] = useState(false);
+  const [indexedVideo, setIndexedVideo] = useState<any>(null);
+
+  const handleIndexYouTube = async () => {
+    if (!youtubeUrl.trim()) {
+      toast({ title: "Please enter a YouTube URL", variant: "destructive" });
+      return;
+    }
+    setIsIndexing(true);
+    setIndexedVideo(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('index-youtube-video', { body: { youtubeUrl } });
+      if (error) throw error;
+      if (data.success) {
+        const { data: insertedAsset, error: insertError } = await supabase
+          .from('media_assets')
+          .insert([data.asset])
+          .select()
+          .single();
+        if (insertError) throw insertError;
+        setIndexedVideo(insertedAsset);
+        toast({ title: "Video indexed successfully!" });
+        setYoutubeUrl("");
+      } else {
+        throw new Error(data.error || 'Failed to index video');
+      }
+    } catch (error: any) {
+      toast({ title: error.message || "Failed to index video", variant: "destructive" });
+    } finally {
+      setIsIndexing(false);
+    }
+  };
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 
 interface UploadFile {
@@ -356,11 +391,112 @@ export default function Upload() {
         </div>
 
         <Tabs defaultValue="upload" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="upload">Upload Media</TabsTrigger>
             <TabsTrigger value="transcription">Transcription</TabsTrigger>
             <TabsTrigger value="translation">Translation</TabsTrigger>
+            <TabsTrigger value="populate">Populate Libraries</TabsTrigger>
           </TabsList>
+          <TabsContent value="populate" className="space-y-6">
+            <Card className="p-6 space-y-4">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Database className="h-5 w-5 text-primary" />
+                Index YouTube Video
+              </h3>
+              <div className="space-y-2">
+                <Label htmlFor="youtube-url">YouTube URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="youtube-url"
+                    type="url"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    disabled={isIndexing}
+                  />
+                  <Button 
+                    onClick={handleIndexYouTube}
+                    disabled={isIndexing || !youtubeUrl.trim()}
+                  >
+                    {isIndexing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Indexing...
+                      </>
+                    ) : (
+                      <>
+                        <Youtube className="h-4 w-4 mr-2" />
+                        Index Video
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {isIndexing && (
+                <div className="bg-secondary/20 p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    <div>
+                      <p className="font-medium">Processing video...</p>
+                      <p className="text-sm text-muted-foreground">
+                        Extracting metadata and analyzing content with AI
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {indexedVideo && (
+                <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-green-700 dark:text-green-400">
+                        Video Indexed Successfully!
+                      </p>
+                      <div className="mt-3 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={indexedVideo.thumbnail_url} 
+                            alt={indexedVideo.title}
+                            className="w-32 h-18 object-cover rounded"
+                          />
+                          <div>
+                            <p className="font-semibold text-sm">{indexedVideo.title}</p>
+                            <div className="flex gap-1 mt-1">
+                              {indexedVideo.tags?.map((tag: string, i: number) => (
+                                <Badge key={i} variant="secondary" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          <p>Video ID: {indexedVideo.video_id}</p>
+                          <p>Classification: {indexedVideo.classification}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </Card>
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Database className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold">How it works</h3>
+              </div>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                <li>Paste a YouTube video URL in the field above</li>
+                <li>Click "Index Video" to start the analysis</li>
+                <li>Our AI will extract metadata and analyze the content</li>
+                <li>The video will be added to your media library with auto-generated tags</li>
+                <li>Access the indexed video from the Videos page</li>
+              </ol>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="upload" className="space-y-6">
             {/* Upload Form */}
