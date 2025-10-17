@@ -1,18 +1,18 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Shield, Zap, Mic, Languages, FileVideo, Image as ImageIcon, Eye, Brain, AlertCircle } from "lucide-react";
+import { ArrowRight, Sparkles, Shield, Zap, MessageSquare, Globe, Video, ScanFace, Lock, TrendingUp } from "lucide-react";
 import heroVideo from "@/assets/hero-video.mov";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const features = [
   {
-    icon: Brain,
+    icon: ScanFace,
     title: "AI Vision & Recognition",
     description: "Executive facial recognition, vehicle model detection, logo identification, and OCR for comprehensive visual analysis",
   },
   {
-    icon: Mic,
+    icon: MessageSquare,
     title: "Audio Intelligence",
     description: "Multi-language transcription, speaker diarization, sentiment analysis, and auto-caption generation in EN/JP/ES",
   },
@@ -22,27 +22,27 @@ const features = [
     description: "Object detection, scene classification, auto-tagging, keyword extraction, named entity recognition, and topic identification",
   },
   {
-    icon: FileVideo,
+    icon: Video,
     title: "Advanced Video Processing",
     description: "AI-generated summaries, key scenes detection, keyframe extraction, and comprehensive metadata generation",
   },
   {
-    icon: Languages,
+    icon: Globe,
     title: "Multi-language Translation",
     description: "Translate content to 6+ languages with context-aware AI translation for global reach",
   },
   {
-    icon: AlertCircle,
+    icon: Shield,
     title: "Content Safety & Compliance",
     description: "Flag inappropriate content, identify unknown people, and maintain enterprise security with Code Red sensitivity levels",
   },
   {
-    icon: Shield,
+    icon: Lock,
     title: "Enterprise Security",
     description: "SSO/MFA authentication, comprehensive audit trails, and data sensitivity classification from public to protected",
   },
   {
-    icon: Zap,
+    icon: TrendingUp,
     title: "Lightning Fast Performance",
     description: "25 TB/week ingestion capacity with real-time processing, instant search, and 2-second query response times",
   },
@@ -240,7 +240,7 @@ export default function Home() {
               viewport={{ once: true }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/20 mb-6"
             >
-              <Brain className="h-4 w-4 text-primary" />
+              <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium text-primary">Advanced Capabilities</span>
             </motion.div>
             
