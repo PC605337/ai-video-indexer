@@ -1,5 +1,4 @@
-import { Search, Bell, User, Upload, FileText, Menu } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Bell, User, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -43,36 +42,8 @@ export const Header = () => {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="flex-1 max-w-2xl mx-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search faces, vehicles, locations, objects, scenes..."
-              className="pl-10 bg-secondary border-border"
-            />
-          </div>
-        </div>
-
         {/* Actions */}
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate('/upload')}
-            title="Upload"
-          >
-            <Upload className="h-5 w-5" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate('/activity-log')}
-            title="Activity Log"
-          >
-            <FileText className="h-5 w-5" />
-          </Button>
+        <div className="flex items-center gap-2 ml-auto">
           <Button 
             variant="ghost" 
             size="icon" 

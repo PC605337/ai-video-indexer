@@ -157,19 +157,19 @@ export default function Home() {
             >
               <Button 
                 size="lg" 
-                className="text-lg px-10 py-7 rounded-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 group" 
-                onClick={() => navigate('/dashboard')}
+                className="text-lg px-10 py-7 rounded-full bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-lg shadow-destructive/20 hover:shadow-xl hover:shadow-destructive/30 transition-all duration-300 group" 
+                onClick={() => navigate('/videos')}
               >
-                Launch Platform
+                Explore Library
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
                 size="lg" 
-                variant="outline" 
-                className="text-lg px-10 py-7 rounded-full glass hover:bg-primary/10 transition-all duration-300" 
+                variant="ghost" 
+                className="text-lg px-10 py-7 rounded-full hover:bg-secondary transition-all duration-300" 
                 onClick={() => navigate('/videos')}
               >
-                Explore Library
+                Launch Platform
               </Button>
             </motion.div>
 
@@ -277,47 +277,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/10 to-background" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.15)_0%,transparent_70%)]" />
-        
-        <div className="max-w-5xl mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="glass rounded-3xl p-12 md:p-16 text-center border-2 border-primary/20 relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
-            
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              viewport={{ once: true }}
-              className="relative z-10"
-            >
-              <Zap className="h-16 w-16 text-primary mx-auto mb-6" />
-              <h2 className="text-4xl md:text-6xl font-black mb-6">
-                Ready to Transform Your <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Media Workflow?</span>
-              </h2>
-              <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-                Join leading enterprises using AI-powered intelligence to manage, analyze, and govern their media at scale.
-              </p>
-              <Button 
-                size="lg" 
-                className="text-lg px-12 py-7 rounded-full shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300"
-                onClick={() => navigate('/dashboard')}
-              >
-                Get Started Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
     </div>
   );
 }
