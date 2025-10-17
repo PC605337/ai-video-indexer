@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useUserRole } from "@/lib/use-user-role";
 import {
   Search,
   FolderOpen,
@@ -29,30 +30,39 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-const menuItems = [
-  { icon: Search, label: "Video", path: "/explorer" },
-  { icon: Image, label: "Photos", path: "/photos" },
-  { icon: FolderOpen, label: "Collections", path: "/collections" },
-  { icon: Mic, label: "Speech-to-Text", path: "/speech-to-text" },
-  { icon: Volume2, label: "Text-to-Speech", path: "/text-to-speech" },
+import { Roles, type UserRole } from "@/lib/roles";
+
+interface MenuItem {
+  icon: any;
+  label: string;
+  path: string;
+  minRole?: UserRole;
+}
+
+const menuItems: MenuItem[] = [
+  { icon: Search, label: "Video", path: "/explorer", minRole: Roles.VIEWER },
+  { icon: Image, label: "Photos", path: "/photos", minRole: Roles.VIEWER },
+  { icon: FolderOpen, label: "Collections", path: "/collections", minRole: Roles.VIEWER },
+  { icon: Mic, label: "Speech-to-Text", path: "/speech-to-text", minRole: Roles.CONTRIBUTOR },
+  { icon: Volume2, label: "Text-to-Speech", path: "/text-to-speech", minRole: Roles.CONTRIBUTOR },
 ];
 
-const uploadItems = [
-  { icon: CloudUpload, label: "Upload Media", path: "/upload" },
-  { icon: Briefcase, label: "Jobs", path: "/jobs" },
+const uploadItems: MenuItem[] = [
+  { icon: CloudUpload, label: "Upload Media", path: "/upload", minRole: Roles.CONTRIBUTOR },
+  { icon: Briefcase, label: "Jobs", path: "/jobs", minRole: Roles.CONTRIBUTOR },
 ];
 
-const analyticsItems = [
-  { icon: TrendingUp, label: "Library Analytics", path: "/dashboard" },
-  { icon: BarChart3, label: "Overall Model Analytics", path: "/analytics" },
-  { icon: Activity, label: "Model Performance", path: "/model-performance" },
-  { icon: GraduationCap, label: "Model Training", path: "/models" },
+const analyticsItems: MenuItem[] = [
+  { icon: TrendingUp, label: "Library Analytics", path: "/dashboard", minRole: Roles.ADMIN },
+  { icon: BarChart3, label: "Overall Model Analytics", path: "/analytics", minRole: Roles.ADMIN },
+  { icon: Activity, label: "Model Performance", path: "/model-performance", minRole: Roles.ADMIN },
+  { icon: GraduationCap, label: "Model Training", path: "/models", minRole: Roles.ADMIN },
 ];
 
-const adminItems = [
-  { icon: Users, label: "Users", path: "/users" },
-  { icon: FileText, label: "Requests", path: "/requests" },
-  { icon: Settings, label: "Settings", path: "/settings" },
+const adminItems: MenuItem[] = [
+  { icon: Users, label: "Users", path: "/users", minRole: Roles.SUPER_ADMIN },
+  { icon: FileText, label: "Requests", path: "/requests", minRole: Roles.SUPER_ADMIN },
+  { icon: Settings, label: "Settings", path: "/settings", minRole: Roles.SUPER_ADMIN },
 ];
 
 export const Sidebar = () => {
@@ -63,6 +73,7 @@ export const Sidebar = () => {
   const [analyticsOpen, setAnalyticsOpen] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
+  const { hasPermission } = useUserRole();
 
   const shouldExpand = open || isHovering;
   const isAnalyticsActive = analyticsItems.some(item => location.pathname === item.path);
@@ -80,8 +91,8 @@ export const Sidebar = () => {
     >
       <div className="flex h-full flex-col">
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
-          {menuItems.map((item) => {
+        <nav className="flex-1 p-1.5 overflow-y-auto">
+          {menuItems.filter(item => !item.minRole || hasPermission(item.minRole)).map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
             
@@ -89,15 +100,15 @@ export const Sidebar = () => {
               <NavLink
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-all h-9 w-full",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-                  !open && "justify-center"
+                  !shouldExpand && "justify-center"
                 )}
               >
-                <Icon className="h-5 w-5 shrink-0" />
-                {shouldExpand && <span>{item.label}</span>}
+                <Icon className="h-4 w-4 shrink-0" />
+                {shouldExpand && <span className="truncate">{item.label}</span>}
               </NavLink>
             );
 
@@ -118,12 +129,12 @@ export const Sidebar = () => {
           })}
 
           {/* Upload Collapsible */}
-          {shouldExpand ? (
+          {hasPermission(Roles.CONTRIBUTOR) && shouldExpand ? (
             <Collapsible open={uploadOpen} onOpenChange={setUploadOpen}>
               <CollapsibleTrigger asChild>
                 <button
                   className={cn(
-                    "flex items-center justify-between w-full gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                    "flex items-center justify-between w-full gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-all h-9",
                     isUploadActive
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -139,7 +150,7 @@ export const Sidebar = () => {
                   )} />
                 </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-1 space-y-1">
+              <CollapsibleContent className="pl-3 mt-0.5">
                 {uploadItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   const Icon = item.icon;
@@ -184,12 +195,12 @@ export const Sidebar = () => {
           )}
 
           {/* Platform Analytics Collapsible */}
-          {shouldExpand ? (
+          {hasPermission(Roles.ADMIN) && shouldExpand ? (
             <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
               <CollapsibleTrigger asChild>
                 <button
                   className={cn(
-                    "flex items-center justify-between w-full gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                    "flex items-center justify-between w-full gap-3 rounded-lg px-2 py-2.5 text-sm font-medium transition-all h-10",
                     isAnalyticsActive
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
