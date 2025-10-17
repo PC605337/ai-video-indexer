@@ -1,4 +1,4 @@
-import { Bell, User, Menu } from "lucide-react";
+import { Bell, User, Menu, CloudUpload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -8,6 +8,7 @@ export const Header = () => {
   const location = useLocation();
   const { toggleSidebar } = useSidebar();
   const showSidebarToggle = location.pathname !== '/';
+  const showHeaderActions = location.pathname !== '/';
 
   return (
     <header className="fixed left-0 right-0 top-0 z-30 h-16 glass border-b border-border">
@@ -43,26 +44,36 @@ export const Header = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 ml-auto">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative" 
-            onClick={() => navigate('/notifications')}
-            title="Notifications"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate('/users')}
-            title="User Profile"
-          >
-            <User className="h-5 w-5" />
-          </Button>
-        </div>
+        {showHeaderActions && (
+          <div className="flex items-center gap-2 ml-auto">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/upload')}
+              title="Upload"
+            >
+              <CloudUpload className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative" 
+              onClick={() => navigate('/notifications')}
+              title="Notifications"
+            >
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/users')}
+              title="User Profile"
+            >
+              <User className="h-5 w-5" />
+            </Button>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -32,27 +32,30 @@ import {
 
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
-  { icon: Search, label: "Explorer", path: "/explorer" },
+  { icon: Search, label: "Video", path: "/explorer" },
   { icon: Image, label: "Photos", path: "/photos" },
   { icon: FolderOpen, label: "Collections", path: "/collections" },
-  { icon: Briefcase, label: "Jobs", path: "/jobs" },
   { icon: Mic, label: "Speech-to-Text", path: "/speech-to-text" },
   { icon: Volume2, label: "Text-to-Speech", path: "/text-to-speech" },
-  { icon: Users, label: "Users", path: "/users" },
-  { icon: FileText, label: "Requests", path: "/requests" },
-  { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
 const uploadItems = [
   { icon: CloudUpload, label: "Upload Media", path: "/upload" },
   { icon: Database, label: "Populate Libraries", path: "/populate-libraries" },
+  { icon: Briefcase, label: "Jobs", path: "/jobs" },
 ];
 
 const analyticsItems = [
   { icon: TrendingUp, label: "Library Analytics", path: "/dashboard" },
   { icon: BarChart3, label: "Overall Model Analytics", path: "/analytics" },
   { icon: Activity, label: "Model Performance", path: "/model-performance" },
-  { icon: Cpu, label: "Models", path: "/models" },
+  { icon: GraduationCap, label: "Model Training", path: "/models" },
+];
+
+const adminItems = [
+  { icon: Users, label: "Users", path: "/users" },
+  { icon: FileText, label: "Requests", path: "/requests" },
+  { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
 export const Sidebar = () => {
@@ -62,10 +65,12 @@ export const Sidebar = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
 
   const shouldExpand = open || isHovering;
   const isAnalyticsActive = analyticsItems.some(item => location.pathname === item.path);
   const isUploadActive = uploadItems.some(item => location.pathname === item.path);
+  const isAdminActive = adminItems.some(item => location.pathname === item.path);
 
   return (
     <aside 
@@ -243,6 +248,72 @@ export const Sidebar = () => {
               </TooltipTrigger>
               <TooltipContent side="right">
                 Platform Analytics
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Platform Administration Collapsible */}
+          {shouldExpand ? (
+            <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
+              <CollapsibleTrigger asChild>
+                <button
+                  className={cn(
+                    "flex items-center justify-between w-full gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                    isAdminActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <Settings className="h-5 w-5 shrink-0" />
+                    <span>Platform Administration</span>
+                  </div>
+                  <ChevronRight className={cn(
+                    "h-4 w-4 transition-transform",
+                    adminOpen && "rotate-90"
+                  )} />
+                </button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-1 space-y-1">
+                {adminItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  const Icon = item.icon;
+                  
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg pl-11 pr-3 py-2 text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </NavLink>
+                  );
+                })}
+              </CollapsibleContent>
+            </Collapsible>
+          ) : (
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setOpen(true)}
+                  className={cn(
+                    "flex items-center justify-center w-full rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                    isAdminActive
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <Settings className="h-5 w-5 shrink-0" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                Platform Administration
               </TooltipContent>
             </Tooltip>
           )}
