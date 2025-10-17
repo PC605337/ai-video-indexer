@@ -117,14 +117,14 @@ export default function Home() {
             </motion.div>
 
             {/* Main Heading */}
-            <h1 className="text-7xl md:text-9xl font-black mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-black mb-4 leading-tight">
               <motion.span 
                 className="block bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
               >
-                AI Indexer
+                Toyota AI Video Indexer
               </motion.span>
               <motion.span 
                 className="block text-foreground mt-2"
@@ -132,7 +132,7 @@ export default function Home() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
               >
-                Enterprise Platform
+                {/* Removed 'Enterprise Platform' as requested */}
               </motion.span>
             </h1>
 

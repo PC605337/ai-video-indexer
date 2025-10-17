@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  Home,
   Search,
   FolderOpen,
   Briefcase,
@@ -31,7 +30,6 @@ import {
 } from "@/components/ui/collapsible";
 
 const menuItems = [
-  { icon: Home, label: "Home", path: "/" },
   { icon: Search, label: "Video", path: "/explorer" },
   { icon: Image, label: "Photos", path: "/photos" },
   { icon: FolderOpen, label: "Collections", path: "/collections" },

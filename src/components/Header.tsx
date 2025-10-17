@@ -1,4 +1,5 @@
-import { Bell, User, Menu, CloudUpload, Search } from "lucide-react";
+import { Bell, User, Menu, CloudUpload, Search, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -17,6 +18,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toggleSidebar } = useSidebar();
+  const { theme, setTheme } = useTheme();
   const showSidebarToggle = location.pathname !== '/';
   const showHeaderActions = location.pathname !== '/';
 
@@ -27,6 +29,12 @@ export const Header = () => {
         navigate(`/explorer?q=${encodeURIComponent(searchQuery)}`);
       }
     }
+  };
+
+  const cycleTheme = () => {
+    if (theme === 'light') setTheme('dark');
+    else if (theme === 'dark') setTheme('system');
+    else setTheme('light');
   };
 
   return (
@@ -56,7 +64,7 @@ export const Header = () => {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">AI Indexer</h1>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Toyota AI Video Indexer</h1>
               <p className="text-xs text-muted-foreground">Enterprise Platform</p>
             </div>
           </div>
@@ -87,6 +95,14 @@ export const Header = () => {
             >
               <CloudUpload className="h-5 w-5" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              title={`Theme: ${theme}`}
+              onClick={cycleTheme}
+            >
+              {theme === 'dark' ? <Moon className="h-5 w-5" /> : theme === 'light' ? <Sun className="h-5 w-5" /> : <Monitor className="h-5 w-5" />}
+            </Button>
             <Button 
               variant="ghost" 
               size="icon" 
@@ -113,6 +129,11 @@ export const Header = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/settings')}>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Log out</DropdownMenuItem>
               </DropdownMenuContent>

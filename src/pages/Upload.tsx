@@ -14,7 +14,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload as UploadIcon, X, CheckCircle, AlertCircle, Mic, Languages, Sparkles, FileVideo, Image as ImageIcon, Youtube, Database, Loader2, CheckCircle2 } from "lucide-react";
+
+
+import { useToast } from "@/components/ui/use-toast";
+
+import { Badge } from "@/components/ui/badge";
+
+import { supabase } from "@/integrations/supabase/client";
+
+import {
+  Database,
+  Loader2,
+  Youtube,
+  CheckCircle2,
+  Upload as UploadIcon,
+  Sparkles,
+  Mic,
+  Image as ImageIcon,
+  FileVideo,
+  Languages,
+  AlertCircle,
+  X,
+  CheckCircle
+} from "lucide-react";
+
+interface UploadFile {
+  id: string;
+  name: string;
+  size: string;
+  progress: number;
+  status: "uploading" | "processing" | "complete" | "error";
+  file: File;
+}
+
+export default function Upload() {
+  const { toast } = useToast();
   // Populate Libraries state
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isIndexing, setIsIndexing] = useState(false);
@@ -22,7 +56,7 @@ import { Upload as UploadIcon, X, CheckCircle, AlertCircle, Mic, Languages, Spar
 
   const handleIndexYouTube = async () => {
     if (!youtubeUrl.trim()) {
-      toast({ title: "Please enter a YouTube URL", variant: "destructive" });
+      toast({ title: "Please enter a YouTube URL", description: "", variant: "destructive" });
       return;
     }
     setIsIndexing(true);
@@ -38,33 +72,17 @@ import { Upload as UploadIcon, X, CheckCircle, AlertCircle, Mic, Languages, Spar
           .single();
         if (insertError) throw insertError;
         setIndexedVideo(insertedAsset);
-        toast({ title: "Video indexed successfully!" });
+        toast({ title: "Video indexed successfully!", description: "" });
         setYoutubeUrl("");
       } else {
         throw new Error(data.error || 'Failed to index video');
       }
     } catch (error: any) {
-      toast({ title: error.message || "Failed to index video", variant: "destructive" });
+      toast({ title: error.message || "Failed to index video", description: "", variant: "destructive" });
     } finally {
       setIsIndexing(false);
     }
   };
-import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
-
-interface UploadFile {
-  id: string;
-  name: string;
-  size: string;
-  progress: number;
-  status: "uploading" | "processing" | "complete" | "error";
-  file: File;
-}
-
-export default function Upload() {
-  const { toast } = useToast();
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [aiProcessing, setAiProcessing] = useState({
