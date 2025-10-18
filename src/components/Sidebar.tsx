@@ -72,7 +72,7 @@ export const Sidebar = () => {
   const { permissions } = useUserRole();
 
   // Build menu items based on permissions
-  const menuItems = permissions.canUpload 
+  const menuItems = permissions.canViewAdvancedFeatures 
     ? [...baseMenuItems, ...advancedMenuItems]
     : baseMenuItems;
 
