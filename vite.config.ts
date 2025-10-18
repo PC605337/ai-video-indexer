@@ -5,9 +5,8 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: true, // This allows both IPv4 and IPv6 access
+    host: "::",
     port: 8080,
-    strictPort: true, // Ensure it only uses the specified port
   },
   plugins: [react()],
   resolve: {
