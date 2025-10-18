@@ -1,4 +1,4 @@
-import { Bell, User, Menu, CloudUpload, Search, Sun, Moon, Monitor } from "lucide-react";
+import { Bell, User, Menu, CloudUpload, Search, Sun, Moon, Monitor, ShieldCheck } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,13 +12,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
+import { useUserRole } from "@/hooks/useUserRole";
+import { roleLabels, UserRole } from "@/lib/roles";
 
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toggleSidebar } = useSidebar();
   const { theme, setTheme } = useTheme();
+  const { currentRole, setCurrentRole } = useUserRole();
   const showSidebarToggle = location.pathname !== '/';
   const showHeaderActions = location.pathname !== '/';
 
@@ -124,11 +129,30 @@ export const Header = () => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/settings')}>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4" />
+                  Role Switcher (Demo)
+                </DropdownMenuLabel>
+                <DropdownMenuRadioGroup value={currentRole} onValueChange={(value) => setCurrentRole(value as UserRole)}>
+                  <DropdownMenuRadioItem value="viewer">
+                    {roleLabels.viewer}
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="contributor">
+                    {roleLabels.contributor}
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="admin">
+                    {roleLabels.admin}
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="super_admin">
+                    {roleLabels.super_admin}
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Appearance</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
