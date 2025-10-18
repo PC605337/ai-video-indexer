@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -70,6 +70,19 @@ export const Sidebar = () => {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const { permissions } = useUserRole();
+
+  // Reset collapsible states when permissions change
+  useEffect(() => {
+    if (!permissions.canUpload) {
+      setUploadOpen(false);
+    }
+    if (!permissions.canViewAnalytics) {
+      setAnalyticsOpen(false);
+    }
+    if (!permissions.canViewAdministration) {
+      setAdminOpen(false);
+    }
+  }, [permissions]);
 
   // Build menu items based on permissions
   const menuItems = permissions.canViewAdvancedFeatures 
