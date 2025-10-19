@@ -1,24 +1,13 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Edit3, FileVideo } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Loader2, Grid, List, Edit3 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Grid, List, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { MediaFilters } from "@/components/MediaFilters";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 export default function Videos() {
   const navigate = useNavigate();
@@ -27,13 +16,9 @@ export default function Videos() {
   const [filteredVideos, setFilteredVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalSize, setTotalSize] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [sortBy, setSortBy] = useState("date-desc");
-  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
-  const itemsPerPage = 12; // Adjusted for better pagination visibility
 
   useEffect(() => {
     loadVideos();
@@ -44,8 +29,8 @@ export default function Videos() {
   }, [videos, dateRange, selectedPeople, sortBy]);
 
   const loadVideos = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from("media_assets")
         .select("*")
@@ -58,8 +43,10 @@ export default function Videos() {
         const formattedVideos = data.map((video: any) => ({
           id: video.id,
           title: video.title,
-          thumbnail: video.thumbnail_url || "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&auto=format&fit=crop",
-          duration: formatDuration(video.duration || 0),
+          thumbnail:
+            video.thumbnail_url ||
+            "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&auto=format&fit=crop",
+          duration: video.duration || 0,
           tags: video.tags || [],
           created_at: video.created_at,
           file_size: video.file_size || 0,
@@ -72,8 +59,8 @@ export default function Videos() {
         const total = data.reduce((sum, video) => sum + (video.file_size || 0), 0);
         setTotalSize(total);
       }
-    } catch (error: any) {
-      console.error("Error loading videos:", error);
+    } catch (error) {
+      console.error("Failed to load videos:", error);
       toast.error("Failed to load videos");
     } finally {
       setLoading(false);
@@ -83,72 +70,39 @@ export default function Videos() {
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${String(secs).padStart(2, '0')}`;
+    return `${mins}:${String(secs).padStart(2, "0")}`;
   };
 
   const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 B';
+    if (!bytes) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-  };
-
-  const handleEditVideo = (e: React.MouseEvent, video: any) => {
-    e.stopPropagation();
-    setSelectedVideo(video);
-    setShowEditDialog(true);
-  };
-
-  const handleOpenInEditor = async (software: string) => {
-    try {
-      const { error } = await supabase.from("asset_edit_sessions").insert([{
-        asset_id: selectedVideo.id,
-        editor_id: "00000000-0000-0000-0000-000000000000",
-        software: software,
-        status: "in_progress",
-        metadata: { opened_from: "videos_page" },
-      }]);
-
-      if (error) throw error;
-
-      toast.success(`Opening in ${software}...`, {
-        description: "Download the video and open it in your editing software.",
-      });
-      
-      if (selectedVideo.file_url) {
-        window.open(selectedVideo.file_url, "_blank");
-      }
-
-      setShowEditDialog(false);
-    } catch (error) {
-      toast.error("Failed to open in editor");
-      console.error(error);
-    }
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const filterAndSortVideos = () => {
     let result = [...videos];
 
-    // Apply date range filter
+    // Date filter
     if (dateRange.from || dateRange.to) {
-      result = result.filter(video => {
-        const videoDate = new Date(video.created_at);
-        if (dateRange.from && videoDate < dateRange.from) return false;
-        if (dateRange.to && videoDate > dateRange.to) return false;
+      result = result.filter((v) => {
+        const date = new Date(v.created_at);
+        if (dateRange.from && date < dateRange.from) return false;
+        if (dateRange.to && date > dateRange.to) return false;
         return true;
       });
     }
 
-    // Apply people filter
+    // People filter
     if (selectedPeople.length > 0) {
-      result = result.filter(video => {
-        const detectedPeople = video.ai_metadata?.detected_people || [];
-        return selectedPeople.some(person => detectedPeople.includes(person));
+      result = result.filter((v) => {
+        const detected = v.ai_metadata?.detected_people || [];
+        return selectedPeople.some((p) => detected.includes(p));
       });
     }
 
-    // Apply sorting
+    // Sorting
     result.sort((a, b) => {
       switch (sortBy) {
         case "date-desc":
@@ -163,65 +117,25 @@ export default function Videos() {
           return b.file_size - a.file_size;
         case "size-asc":
           return a.file_size - b.file_size;
-        case "people-desc":
-          const aPeople = a.ai_metadata?.detected_people?.length || 0;
-          const bPeople = b.ai_metadata?.detected_people?.length || 0;
-          return bPeople - aPeople;
         default:
           return 0;
       }
     });
 
     setFilteredVideos(result);
-    setCurrentPage(1);
   };
 
   // Get unique people from all videos
   const availablePeople = Array.from(
-    new Set(
-      videos.flatMap(v => v.ai_metadata?.detected_people || [])
-    )
+    new Set(videos.flatMap((v) => v.ai_metadata?.detected_people || []))
   ).sort();
-
-  // Pagination
-  const totalPages = Math.ceil(filteredVideos.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedVideos = filteredVideos.slice(startIndex, startIndex + itemsPerPage);
-
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const showPages = 5;
-    
-    if (totalPages <= showPages + 2) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= showPages; i++) pages.push(i);
-        pages.push("ellipsis");
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push("ellipsis");
-        for (let i = totalPages - showPages + 1; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push("ellipsis");
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
-        pages.push("ellipsis");
-        pages.push(totalPages);
-      }
-    }
-    return pages;
-  };
 
   if (loading) {
     return (
       <div className="flex-1">
         <Header />
-        <main className="pt-16 p-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-center min-h-[60vh]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+        <main className="pt-16 p-6 flex justify-center items-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
       </div>
     );
@@ -230,213 +144,104 @@ export default function Videos() {
   return (
     <div className="flex-1">
       <Header />
-      <main className="pt-16 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex items-center justify-between animate-fade-in-up">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Video Library</h1>
-              <p className="text-muted-foreground">
-                {filteredVideos.length.toLocaleString()} of {videos.length.toLocaleString()} videos • {formatBytes(totalSize)}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="icon"
-                onClick={() => setViewMode("grid")}
-              >
-                <Grid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="icon"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          <MediaFilters
-            onDateRangeChange={setDateRange}
-            onSortChange={setSortBy}
-            onPeopleFilter={setSelectedPeople}
-            currentSort={sortBy}
-            availablePeople={availablePeople}
-          />
-
-          {filteredVideos.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                {videos.length === 0 
-                  ? "No videos found. Upload your first video to get started." 
-                  : "No videos match your filters. Try adjusting your search criteria."}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
-                {paginatedVideos.map((video, index) => (
-                <motion.div 
-                  key={video.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => navigate(`/videos/${video.id}`)} 
-                  className="group cursor-pointer"
-                >
-                  <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border border-border shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <img 
-                      src={video.thumbnail} 
-                      alt={video.title}
-                      loading="lazy"
-                      width="160"
-                      height="90"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="absolute bottom-1.5 right-1.5 bg-black/80 backdrop-blur-sm text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
-                      {video.duration}
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="w-12 h-12 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-lg animate-scale-in">
-                        <svg className="w-5 h-5 text-primary-foreground ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                      <Button 
-                        size="icon"
-                        variant="secondary"
-                        className="h-12 w-12 rounded-full shadow-lg"
-                        onClick={(e) => handleEditVideo(e, video)}
-                      >
-                        <Edit3 className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                      {video.title}
-                    </h3>
-                    {video.tags && video.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {video.tags.slice(0, 2).map((tag: string, i: number) => (
-                          <Badge key={i} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <Pagination className="mt-8">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                    
-                    {getPageNumbers().map((pageNum, idx) => (
-                      <PaginationItem key={idx}>
-                        {pageNum === "ellipsis" ? (
-                          <PaginationEllipsis />
-                        ) : (
-                          <PaginationLink
-                            onClick={() => setCurrentPage(pageNum as number)}
-                            isActive={currentPage === pageNum}
-                            className="cursor-pointer"
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        )}
-                      </PaginationItem>
-                    ))}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              )}
-            </>
-          )}
-        </div>
-      </main>
-
-      {/* Edit Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="sm:max-w-md z-[100] bg-background">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit3 className="h-5 w-5 text-primary" />
-              Open in Editing Software
-            </DialogTitle>
-            <DialogDescription>
-              Select your preferred editing software to open and edit this video.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-3 mt-4">
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 h-auto py-3"
-              onClick={() => handleOpenInEditor("Adobe Premiere Pro")}
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-500/10">
-                <FileVideo className="h-5 w-5 text-purple-600" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold">Adobe Premiere Pro</p>
-                <p className="text-xs text-muted-foreground">Professional video editing</p>
-              </div>
-            </Button>
-            
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 h-auto py-3"
-              onClick={() => handleOpenInEditor("Final Cut Pro")}
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10">
-                <FileVideo className="h-5 w-5 text-blue-600" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold">Final Cut Pro</p>
-                <p className="text-xs text-muted-foreground">Mac video editing suite</p>
-              </div>
-            </Button>
-            
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 h-auto py-3"
-              onClick={() => handleOpenInEditor("DaVinci Resolve")}
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10">
-                <FileVideo className="h-5 w-5 text-red-600" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold">DaVinci Resolve</p>
-                <p className="text-xs text-muted-foreground">Color grading & editing</p>
-              </div>
-            </Button>
-          </div>
-
-          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-            <p className="text-xs text-muted-foreground">
-              💡 After editing, click on the video to open the detail page and submit for approval review.
+      <main className="pt-16 p-6 max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Video Library</h1>
+            <p className="text-muted-foreground">
+              {filteredVideos.length} of {videos.length} videos • {formatBytes(totalSize)}
             </p>
           </div>
-        </DialogContent>
-      </Dialog>
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === "grid" ? "default" : "outline"}
+              size="icon"
+              onClick={() => setViewMode("grid")}
+            >
+              <Grid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="icon"
+              onClick={() => setViewMode("list")}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <MediaFilters
+          onDateRangeChange={setDateRange}
+          onSortChange={setSortBy}
+          onPeopleFilter={setSelectedPeople}
+          currentSort={sortBy}
+          availablePeople={availablePeople}
+        />
+
+        {filteredVideos.length === 0 ? (
+          <p className="text-center text-muted-foreground py-12">
+            {videos.length === 0
+              ? "No videos uploaded yet."
+              : "No videos match your filters."}
+          </p>
+        ) : (
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                : "space-y-4"
+            }
+          >
+            {filteredVideos.map((video) => (
+              <motion.div
+                key={video.id}
+                className="group cursor-pointer"
+                whileHover={{ scale: 1.02 }}
+                onClick={() => navigate(`/videos/${video.id}`)}
+              >
+                <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border border-border shadow-sm">
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 py-0.5 rounded">
+                    {formatDuration(video.duration)}
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-12 h-12 rounded-full bg-primary/90 flex items-center justify-center">
+                      <svg
+                        className="w-5 h-5 text-primary-foreground"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-12 w-12 rounded-full"
+                    >
+                      <Edit3 className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+                <h3 className="font-semibold text-sm line-clamp-2 mt-2">{video.title}</h3>
+                {video.tags && video.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {video.tags.slice(0, 2).map((tag: string, idx: number) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

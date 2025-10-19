@@ -26,6 +26,19 @@ import { VideoTimeline } from "@/components/VideoTimeline";
 import { ApprovalWorkflow } from "@/components/ApprovalWorkflow";
 
 const VideoDetail = () => {
+import { useLocation, useParams } from "react-router-dom";
+import { useState } from "react";
+import { motion } from "framer-motion";
+
+// Dummy insights
+const dummyInsights = [
+  { type: "Transcript", data: "This is a sample transcript from the video." },
+  { type: "Objects Detected", data: "Car, Person, Tree" },
+  { type: "Face Recognition", data: "John Doe (90%), Jane Smith (85%)" },
+  { type: "Scene Change", data: "00:00:05, 00:00:12, 00:00:20" },
+];
+
+export default function VideoDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("insights");
@@ -335,6 +348,18 @@ const VideoDetail = () => {
       </div>
     );
   }
+  const location = useLocation();
+  const stateVideo = location.state?.video;
+
+  const [video] = useState(
+    stateVideo || {
+      id,
+      title: "Fallback Video",
+      file_url: "/assets/video1.mp4",
+      ai_metadata: { summary: "This is a fallback summary." },
+      file_path: "/local/path/video1.mp4",
+    }
+  );
 
   // Azure-style video player layout
   return (
@@ -509,6 +534,41 @@ const VideoDetail = () => {
                 </video>
               )}
             </div>
+    <div className="pt-16 p-6 max-w-7xl mx-auto flex gap-6">
+      {/* Left Panel - fixed */}
+      <div className="flex-shrink-0 w-[720px] flex flex-col gap-4">
+        {/* Video Player */}
+        <video
+          src={video.file_url}
+          controls
+          className="w-full h-[405px] bg-black rounded-lg"
+        />
+
+        {/* Video Info */}
+        <div className="mt-2 space-y-1">
+          <h2 className="text-2xl font-bold">{video.title}</h2>
+          <p className="text-sm text-muted-foreground">
+            File Path: {video.file_path}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            AI Summary: {video.ai_metadata.summary}
+          </p>
+        </div>
+
+        {/* Timeline */}
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold mb-2">Timeline</h3>
+          <div className="relative h-10 bg-gray-200 rounded-md">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="absolute top-0 h-10 w-2 bg-blue-500 rounded left-[calc(20%*idx)]"
+              />
+            ))}
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+            <span>0:00</span>
+            <span>0:30</span>
           </div>
 
           {/* File Paths Section Below Video */}
@@ -549,6 +609,7 @@ const VideoDetail = () => {
                       </div>
                     )}
                   </div>
+        </div>
 
                   {/* S3 Path */}
                   <div className="space-y-2">
@@ -932,6 +993,39 @@ const VideoDetail = () => {
             </TabsContent>
           </Tabs>
         </div>
+      </div>
+        {/* EditorToolbar Placeholder */}
+        <div className="mt-4 p-2 bg-gray-100 rounded-md shadow-sm">
+          <p className="text-sm font-semibold">Editor Toolbar Placeholder</p>
+        </div>
+
+        {/* CaptionControls Placeholder */}
+        <div className="mt-2 p-2 bg-gray-100 rounded-md shadow-sm">
+          <p className="text-sm font-semibold">Caption Controls Placeholder</p>
+        </div>
+
+        {/* ApprovalWorkflow Placeholder */}
+        <div className="mt-2 p-2 bg-gray-100 rounded-md shadow-sm">
+          <p className="text-sm font-semibold">Approval Workflow Placeholder</p>
+        </div>
+      </div>
+
+      {/* Right Panel - scrollable */}
+      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-64px)] bg-muted p-4 rounded-lg space-y-4">
+        <h3 className="text-lg font-semibold">Video Insights</h3>
+
+        {dummyInsights.map((insight, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            className="bg-background rounded-lg p-3 shadow-sm"
+          >
+            <h4 className="font-semibold">{insight.type}</h4>
+            <p className="text-sm text-muted-foreground">{insight.data}</p>
+          </motion.div>
+        ))}
       </div>
     </div>
   );

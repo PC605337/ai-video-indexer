@@ -85,19 +85,19 @@ export default function Users() {
     },
     {
       id: "2",
-      name: "John Smith",
-      email: "john.smith@toyota.com",
+      name: "Tom Hood",
+      email: "Tom.Hood@toyota.com",
       role: "Admin",
       avatar: "",
-      initials: "JS",
+      initials: "TH",
     },
     {
       id: "3",
-      name: "Sarah Johnson",
-      email: "sarah.j@toyota.com",
+      name: "David Statham",
+      email: "David.Statham@toyota.com",
       role: "User",
       avatar: "",
-      initials: "SJ",
+      initials: "DS",
     },
   ];
 
