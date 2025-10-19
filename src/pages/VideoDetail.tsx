@@ -1,24 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, Download, Edit3, FileVideo, Loader2, Clock, Calendar, HardDrive, Tag } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { CaptionControls } from "@/components/CaptionControls";
+import { EditorToolbar } from "@/components/EditorToolbar";
+import { ApprovalWorkflow } from "@/components/ApprovalWorkflow";
+import { FilePathTraceability } from "@/components/FilePathTraceability";
+import { ReviewPanel } from "@/components/ReviewPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function VideoDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [video, setVideo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("insights");
+  const [reviewComments, setReviewComments] = useState<any[]>([]);
+  const { currentRole } = useUserRole();
 
   useEffect(() => {
     loadVideo();
+    loadReviewComments();
   }, [id]);
 
   const loadVideo = async () => {
@@ -29,24 +37,12 @@ export default function VideoDetail() {
         .select("*")
         .eq("id", id)
         .eq("asset_type", "video")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
       if (data) {
-        const videoData = data as any;
-        setVideo({
-          id: videoData.id,
-          title: videoData.title,
-          thumbnail: videoData.thumbnail_url || "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&auto=format&fit=crop",
-          duration: videoData.duration || 0,
-          tags: videoData.tags || [],
-          created_at: videoData.created_at,
-          file_size: videoData.file_size || 0,
-          ai_metadata: videoData.ai_metadata || {},
-          file_url: videoData.file_url,
-          description: videoData.description || "",
-        });
+        setVideo(data);
       }
     } catch (error: any) {
       console.error("Error loading video:", error);
@@ -57,56 +53,24 @@ export default function VideoDetail() {
     }
   };
 
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${String(secs).padStart(2, '0')}`;
-  };
-
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const handleOpenInEditor = async (software: string) => {
+  const loadReviewComments = async () => {
+    if (!id) return;
+    
     try {
-      const { error } = await supabase.from("asset_edit_sessions").insert([{
-        asset_id: video.id,
-        editor_id: "00000000-0000-0000-0000-000000000000",
-        software: software,
-        status: "in_progress",
-        metadata: { opened_from: "video_detail_page" },
-      }]);
+      const { data, error } = await supabase
+        .from("review_comments")
+        .select("*")
+        .eq("asset_id", id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-
-      toast.success(`Opening in ${software}...`, {
-        description: "Download the video and open it in your editing software.",
-      });
-
-      if (video.file_url) {
-        window.open(video.file_url, "_blank");
-      }
-
-      setShowEditDialog(false);
+      setReviewComments(data || []);
     } catch (error) {
-      toast.error("Failed to open in editor");
-      console.error(error);
+      console.error("Error loading review comments:", error);
     }
   };
+
+  const canAccessCodeRed = currentRole === "super_admin" || currentRole === "admin";
 
   if (loading) {
     return (
@@ -140,213 +104,189 @@ export default function VideoDetail() {
   return (
     <div className="flex-1">
       <Header />
-      <main className="pt-16 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+      <main className="pt-16">
+        <div className="px-6 py-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/videos")}
+            className="mb-4"
           >
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/videos")}
-              className="mb-4"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Videos
-            </Button>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Videos
+          </Button>
+        </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Video Player Section */}
-              <div className="lg:col-span-2 space-y-4">
-                <Card>
-                  <CardContent className="p-0">
-                    <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={video.thumbnail}
-                        alt={video.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Button
-                          size="lg"
-                          className="h-16 w-16 rounded-full"
-                          onClick={() => video.file_url && window.open(video.file_url, "_blank")}
-                        >
-                          <Play className="h-8 w-8" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+        <div className="min-h-screen flex bg-background">
+          {/* Left Panel - Static Video Player + Summary + File Paths */}
+          <div className="w-[60%] flex flex-col items-center bg-black flex-shrink-0 px-6 pb-6">
+            {/* Video Player */}
+            <div className="w-full max-w-[960px] h-[480px] relative mt-6">
+              {video.video_id ? (
+                <div className="relative w-full h-full">
+                  <iframe
+                    className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+                    src={`https://www.youtube.com/embed/${video.video_id}`}
+                    title={video.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                  <div className="absolute bottom-4 right-4 z-10">
+                    <CaptionControls />
+                  </div>
+                </div>
+              ) : (
+                <div className="relative w-full h-full">
+                  <video
+                    ref={videoRef}
+                    src={video.file_url}
+                    controls
+                    className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg object-contain"
+                    poster={video.thumbnail_url}
+                    preload="metadata"
+                  />
+                  <div className="absolute bottom-4 right-4 z-10">
+                    <CaptionControls />
+                  </div>
+                </div>
+              )}
+            </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{video.title}</CardTitle>
-                    {video.description && (
-                      <CardDescription>{video.description}</CardDescription>
-                    )}
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {video.tags && video.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {video.tags.map((tag: string, i: number) => (
-                          <Badge key={i} variant="secondary">
-                            <Tag className="h-3 w-3 mr-1" />
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        {formatDuration(video.duration)}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        {formatDate(video.created_at)}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <HardDrive className="h-4 w-4" />
-                        {formatBytes(video.file_size)}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2 pt-4">
-                      <Button onClick={() => setShowEditDialog(true)}>
-                        <Edit3 className="h-4 w-4 mr-2" />
-                        Edit Video
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => video.file_url && window.open(video.file_url, "_blank")}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+            {/* AI Generated Video Summary */}
+            {video.ai_summary && (
+              <div className="mt-4 w-full max-w-[960px] p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <h4 className="font-semibold text-primary mb-2">AI-Generated Summary</h4>
+                <p className="text-sm text-foreground/80">{video.ai_summary}</p>
+                {video.ai_metadata?.analyzedAt && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Generated: {new Date(video.ai_metadata.analyzedAt).toLocaleString()}
+                  </p>
+                )}
               </div>
+            )}
 
-              {/* AI Metadata Section */}
-              <div className="space-y-4">
+            {/* File Source Paths */}
+            <div className="mt-4 w-full max-w-[960px]">
+              <FilePathTraceability
+                nasPath={video.nas_path}
+                s3Path={video.s3_path}
+                proxyPath={video.proxy_path}
+                finalPath={video.final_path}
+                versionLineage={video.version_lineage}
+              />
+            </div>
+
+            {/* Editor Toolbar */}
+            {canAccessCodeRed && (
+              <div className="mt-4 w-full max-w-[960px]">
+                <EditorToolbar
+                  assetId={video.id}
+                  assetType="video"
+                  assetUrl={video.file_url}
+                  metadata={video.ai_metadata}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Right Panel - Scrollable Insights / Review / Transcript */}
+          <div className="w-[40%] h-screen overflow-y-auto bg-card flex flex-col">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+              <TabsList className="border-b px-4 bg-background flex-shrink-0">
+                <TabsTrigger value="insights">Insights</TabsTrigger>
+                <TabsTrigger value="transcript">Transcript</TabsTrigger>
+                {canAccessCodeRed && (
+                  <TabsTrigger value="review">Review</TabsTrigger>
+                )}
+              </TabsList>
+
+              {/* Insights Tab */}
+              <TabsContent value="insights" className="flex-1 p-6 space-y-4">
+                <div>
+                  <h3 className="font-semibold text-lg mb-4">{video.title}</h3>
+                  {video.description && (
+                    <p className="text-sm text-muted-foreground mb-4">{video.description}</p>
+                  )}
+                </div>
+
                 {video.ai_metadata?.detected_people && video.ai_metadata.detected_people.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Detected People</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2">
-                        {video.ai_metadata.detected_people.map((person: string, i: number) => (
-                          <Badge key={i} variant="outline">
-                            {person}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Detected People</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {video.ai_metadata.detected_people.map((person: string, i: number) => (
+                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
+                          {person}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {video.ai_metadata?.detected_objects && video.ai_metadata.detected_objects.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Detected Objects</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2">
-                        {video.ai_metadata.detected_objects.map((object: string, i: number) => (
-                          <Badge key={i} variant="secondary">
-                            {object}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Detected Objects</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {video.ai_metadata.detected_objects.map((object: string, i: number) => (
+                        <span key={i} className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-xs">
+                          {object}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {video.tags && video.tags.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Tags</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {video.tags.map((tag: string, i: number) => (
+                        <span key={i} className="px-2 py-1 bg-accent text-accent-foreground rounded-md text-xs">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {video.ai_metadata?.sentiment && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Sentiment Analysis</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Badge variant="outline">{video.ai_metadata.sentiment}</Badge>
-                    </CardContent>
-                  </Card>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Sentiment</h4>
+                    <span className="px-3 py-1 bg-muted rounded-md text-sm">
+                      {video.ai_metadata.sentiment}
+                    </span>
+                  </div>
                 )}
-              </div>
-            </div>
-          </motion.div>
+              </TabsContent>
+
+              {/* Transcript Tab */}
+              <TabsContent value="transcript" className="flex-1 p-6">
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Transcript</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Transcript feature coming soon. This will display time-coded transcript segments.
+                  </p>
+                </div>
+              </TabsContent>
+
+              {/* Review Tab */}
+              {canAccessCodeRed && (
+                <TabsContent value="review" className="flex-1 p-6 space-y-4">
+                  <ApprovalWorkflow
+                    assetId={video.id}
+                    currentStatus="pending"
+                    onStatusChange={loadReviewComments}
+                  />
+                  <ReviewPanel
+                    assetId={video.id}
+                    assetType="video"
+                    comments={reviewComments}
+                    onCommentAdded={loadReviewComments}
+                  />
+                </TabsContent>
+              )}
+            </Tabs>
+          </div>
         </div>
       </main>
-
-      {/* Edit Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="sm:max-w-md z-[100] bg-background">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit3 className="h-5 w-5 text-primary" />
-              Open in Editing Software
-            </DialogTitle>
-            <DialogDescription>
-              Select your preferred editing software to open and edit this video.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-3 mt-4">
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 h-auto py-3"
-              onClick={() => handleOpenInEditor("Adobe Premiere Pro")}
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-500/10">
-                <FileVideo className="h-5 w-5 text-purple-600" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold">Adobe Premiere Pro</p>
-                <p className="text-xs text-muted-foreground">Professional video editing</p>
-              </div>
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 h-auto py-3"
-              onClick={() => handleOpenInEditor("Final Cut Pro")}
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10">
-                <FileVideo className="h-5 w-5 text-blue-600" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold">Final Cut Pro</p>
-                <p className="text-xs text-muted-foreground">Mac video editing suite</p>
-              </div>
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 h-auto py-3"
-              onClick={() => handleOpenInEditor("DaVinci Resolve")}
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10">
-                <FileVideo className="h-5 w-5 text-red-600" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold">DaVinci Resolve</p>
-                <p className="text-xs text-muted-foreground">Color grading & editing</p>
-              </div>
-            </Button>
-          </div>
-
-          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-            <p className="text-xs text-muted-foreground">
-              💡 After editing, the changes will be tracked for approval review.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
