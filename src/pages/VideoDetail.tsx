@@ -9,19 +9,21 @@ import { EditorToolbar } from "@/components/EditorToolbar";
 import { ApprovalWorkflow } from "@/components/ApprovalWorkflow";
 import { FilePathTraceability } from "@/components/FilePathTraceability";
 import { ReviewPanel } from "@/components/ReviewPanel";
+import { CodeRedAccess } from "@/components/CodeRedAccess";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
 import { useUserRole } from "@/hooks/useUserRole";
 
 export default function VideoDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
   const [video, setVideo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("insights");
   const [reviewComments, setReviewComments] = useState<any[]>([]);
+  const [hoverTime, setHoverTime] = useState<number | null>(null);
   const { currentRole } = useUserRole();
 
   useEffect(() => {
@@ -68,6 +70,29 @@ export default function VideoDetail() {
     } catch (error) {
       console.error("Error loading review comments:", error);
     }
+  };
+
+  const handleTimelineHover = (e: React.MouseEvent) => {
+    if (!timelineRef.current || !videoRef.current) return;
+    const rect = timelineRef.current.getBoundingClientRect();
+    const hoverX = e.clientX - rect.left;
+    const hoverRatio = Math.max(0, Math.min(1, hoverX / rect.width));
+    const time = (videoRef.current.duration || 0) * hoverRatio;
+    setHoverTime(time);
+  };
+
+  const handleTimelineClick = (e: React.MouseEvent) => {
+    if (!videoRef.current || hoverTime === null) return;
+    videoRef.current.currentTime = hoverTime;
+  };
+
+  const getThumbnailForTime = (time: number) => {
+    if (!video?.ai_metadata?.keyframes || video.ai_metadata.keyframes.length === 0) return null;
+    let closest = video.ai_metadata.keyframes[0];
+    for (let kf of video.ai_metadata.keyframes) {
+      if (Math.abs(kf.time - time) < Math.abs(closest.time - time)) closest = kf;
+    }
+    return closest.thumbnailUrl;
   };
 
   const canAccessCodeRed = currentRole === "super_admin" || currentRole === "admin";
@@ -117,8 +142,10 @@ export default function VideoDetail() {
         </div>
 
         <div className="min-h-screen flex bg-background">
-          {/* Left Panel - Static Video Player + Summary + File Paths */}
+          {/* Left Panel - Static Video Player + Timeline + Controls */}
           <div className="w-[60%] flex flex-col items-center bg-black flex-shrink-0 px-6 pb-6">
+            <CodeRedAccess assetId={video.id} classification={video.classification} />
+
             {/* Video Player */}
             <div className="w-full max-w-[960px] h-[480px] relative mt-6">
               {video.video_id ? (
@@ -130,9 +157,6 @@ export default function VideoDetail() {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
-                  <div className="absolute bottom-4 right-4 z-10">
-                    <CaptionControls />
-                  </div>
                 </div>
               ) : (
                 <div className="relative w-full h-full">
@@ -144,18 +168,62 @@ export default function VideoDetail() {
                     poster={video.thumbnail_url}
                     preload="metadata"
                   />
-                  <div className="absolute bottom-4 right-4 z-10">
-                    <CaptionControls />
-                  </div>
                 </div>
               )}
             </div>
 
+            {/* Timeline with hover preview */}
+            {!video.video_id && (
+              <div
+                ref={timelineRef}
+                className="relative w-full max-w-[960px] h-12 bg-gray-800 rounded-md cursor-pointer overflow-visible mt-4"
+                onMouseMove={handleTimelineHover}
+                onMouseLeave={() => setHoverTime(null)}
+                onClick={handleTimelineClick}
+              >
+                {/* Hover Thumbnail */}
+                {hoverTime !== null && getThumbnailForTime(hoverTime) && (
+                  <div
+                    className="absolute -top-24 transform -translate-x-1/2 z-10 pointer-events-none"
+                    style={{
+                      left: `${(hoverTime / (videoRef.current?.duration || 1)) * 100}%`,
+                    }}
+                  >
+                    <img
+                      src={getThumbnailForTime(hoverTime) || ""}
+                      alt="hover preview"
+                      className="w-32 h-18 rounded-md border border-border shadow-lg object-cover"
+                    />
+                    <p className="text-xs text-center text-white mt-1">
+                      {Math.floor(hoverTime / 60)}:{Math.floor(hoverTime % 60).toString().padStart(2, '0')}
+                    </p>
+                  </div>
+                )}
+
+                {/* Timeline Bar */}
+                <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-600 -translate-y-1/2 rounded" />
+                {videoRef.current && (
+                  <div
+                    className="absolute top-1/2 left-0 h-1 bg-primary rounded transition-all"
+                    style={{
+                      width: `${((videoRef.current.currentTime || 0) / (videoRef.current.duration || 1)) * 100}%`,
+                      transform: "translateY(-50%)",
+                    }}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Caption Controls */}
+            <div className="mt-4 w-full max-w-[960px]">
+              <CaptionControls />
+            </div>
+
             {/* AI Generated Video Summary */}
             {video.ai_summary && (
-              <div className="mt-4 w-full max-w-[960px] p-4 bg-primary/5 rounded-lg border border-primary/20">
+              <div className="mt-4 w-full max-w-[960px] p-4 bg-primary/5 rounded-lg border border-primary/20 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="font-semibold text-primary mb-2">AI-Generated Summary</h4>
-                <p className="text-sm text-foreground/80">{video.ai_summary}</p>
+                <p className="text-sm text-foreground/80 leading-relaxed">{video.ai_summary}</p>
                 {video.ai_metadata?.analyzedAt && (
                   <p className="text-xs text-muted-foreground mt-1">
                     Generated: {new Date(video.ai_metadata.analyzedAt).toLocaleString()}
@@ -208,6 +276,18 @@ export default function VideoDetail() {
                   )}
                 </div>
 
+                {/* AI Metadata at hover time */}
+                {hoverTime !== null && video.ai_metadata?.frames && (
+                  <div className="p-4 bg-muted rounded-md border border-border shadow-sm hover:shadow-md transition-shadow">
+                    <h4 className="font-semibold text-sm mb-2">
+                      Insights at {Math.floor(hoverTime / 60)}:{Math.floor(hoverTime % 60).toString().padStart(2, '0')}
+                    </h4>
+                    <pre className="text-xs overflow-x-auto text-muted-foreground whitespace-pre-wrap">
+                      {JSON.stringify(video.ai_metadata.frames[Math.floor(hoverTime)] || {}, null, 2)}
+                    </pre>
+                  </div>
+                )}
+
                 {video.ai_metadata?.detected_people && video.ai_metadata.detected_people.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="font-medium text-sm">Detected People</h4>
@@ -253,6 +333,16 @@ export default function VideoDetail() {
                     <span className="px-3 py-1 bg-muted rounded-md text-sm">
                       {video.ai_metadata.sentiment}
                     </span>
+                  </div>
+                )}
+
+                {/* Full AI Metadata */}
+                {video.ai_metadata && Object.keys(video.ai_metadata).length > 0 && (
+                  <div className="p-4 bg-muted rounded-md border border-border shadow-sm hover:shadow-md transition-shadow">
+                    <h4 className="font-semibold text-sm mb-2">Full AI Metadata</h4>
+                    <pre className="text-xs overflow-x-auto text-muted-foreground whitespace-pre-wrap">
+                      {JSON.stringify(video.ai_metadata, null, 2)}
+                    </pre>
                   </div>
                 )}
               </TabsContent>
