@@ -1,8 +1,8 @@
-# AI Video Indexer
+﻿# Welcome to your Lovable project
 
 ## Project info
 
-A powerful AI-driven video indexing and analysis platform.
+**URL**: https://lovable.dev/projects/eecb3a38-f7f6-48e8-8c94-e08d9f39c58a
 
 ## How can I edit this code?
 
@@ -60,19 +60,15 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How to run this project
+## How can I deploy this project?
 
-1. Install dependencies:
-```bash
-npm install
-```
+Simply open [Lovable](https://lovable.dev/projects/eecb3a38-f7f6-48e8-8c94-e08d9f39c58a) and click on Share -> Publish.
 
-2. Start development server:
-```bash
-npm run dev
-```
+## Can I connect a custom domain to my Lovable project?
 
-3. Build for production:
-```bash
-npm run build
-```
+Yes, you can!
+
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
