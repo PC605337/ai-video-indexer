@@ -10,6 +10,11 @@ import { ApprovalWorkflow } from "@/components/ApprovalWorkflow";
 import { FilePathTraceability } from "@/components/FilePathTraceability";
 import { ReviewPanel } from "@/components/ReviewPanel";
 import { CodeRedAccess } from "@/components/CodeRedAccess";
+import { TranscriptPanel } from "@/components/TranscriptPanel";
+import { InsightsPanel } from "@/components/InsightsPanel";
+import { SentimentPanel } from "@/components/SentimentPanel";
+import { ScenesPanel } from "@/components/ScenesPanel";
+import { ExportDialog } from "@/components/ExportDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -259,103 +264,38 @@ export default function VideoDetail() {
           {/* Right Panel - Scrollable Insights / Review / Transcript */}
           <div className="w-[40%] h-screen overflow-y-auto bg-card flex flex-col">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-              <TabsList className="border-b px-4 bg-background flex-shrink-0">
+            <div className="flex items-center justify-between border-b px-4 py-2 bg-background flex-shrink-0">
+              <TabsList className="bg-background">
                 <TabsTrigger value="insights">Insights</TabsTrigger>
                 <TabsTrigger value="transcript">Transcript</TabsTrigger>
+                <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
+                <TabsTrigger value="scenes">Scenes</TabsTrigger>
                 {canAccessCodeRed && (
                   <TabsTrigger value="review">Review</TabsTrigger>
                 )}
               </TabsList>
+              <ExportDialog video={video} />
+            </div>
 
-              {/* Insights Tab */}
-              <TabsContent value="insights" className="flex-1 p-6 space-y-4">
-                <div>
-                  <h3 className="font-semibold text-lg mb-4">{video.title}</h3>
-                  {video.description && (
-                    <p className="text-sm text-muted-foreground mb-4">{video.description}</p>
-                  )}
-                </div>
+          {/* Insights Tab */}
+          <TabsContent value="insights" className="flex-1 p-6 space-y-4 overflow-y-auto">
+            <InsightsPanel video={video} hoverTime={hoverTime} />
+          </TabsContent>
 
-                {/* AI Metadata at hover time */}
-                {hoverTime !== null && video.ai_metadata?.frames && (
-                  <div className="p-4 bg-muted rounded-md border border-border shadow-sm hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-sm mb-2">
-                      Insights at {Math.floor(hoverTime / 60)}:{Math.floor(hoverTime % 60).toString().padStart(2, '0')}
-                    </h4>
-                    <pre className="text-xs overflow-x-auto text-muted-foreground whitespace-pre-wrap">
-                      {JSON.stringify(video.ai_metadata.frames[Math.floor(hoverTime)] || {}, null, 2)}
-                    </pre>
-                  </div>
-                )}
+          {/* Transcript Tab */}
+          <TabsContent value="transcript" className="flex-1 p-6 overflow-y-auto">
+            <TranscriptPanel videoId={video.id} videoRef={videoRef} />
+          </TabsContent>
 
-                {video.ai_metadata?.detected_people && video.ai_metadata.detected_people.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Detected People</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {video.ai_metadata.detected_people.map((person: string, i: number) => (
-                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
-                          {person}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+          {/* Sentiment Tab */}
+          <TabsContent value="sentiment" className="flex-1 p-6 overflow-y-auto">
+            <SentimentPanel video={video} />
+          </TabsContent>
 
-                {video.ai_metadata?.detected_objects && video.ai_metadata.detected_objects.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Detected Objects</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {video.ai_metadata.detected_objects.map((object: string, i: number) => (
-                        <span key={i} className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-xs">
-                          {object}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {video.tags && video.tags.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Tags</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {video.tags.map((tag: string, i: number) => (
-                        <span key={i} className="px-2 py-1 bg-accent text-accent-foreground rounded-md text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {video.ai_metadata?.sentiment && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Sentiment</h4>
-                    <span className="px-3 py-1 bg-muted rounded-md text-sm">
-                      {video.ai_metadata.sentiment}
-                    </span>
-                  </div>
-                )}
-
-                {/* Full AI Metadata */}
-                {video.ai_metadata && Object.keys(video.ai_metadata).length > 0 && (
-                  <div className="p-4 bg-muted rounded-md border border-border shadow-sm hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-sm mb-2">Full AI Metadata</h4>
-                    <pre className="text-xs overflow-x-auto text-muted-foreground whitespace-pre-wrap">
-                      {JSON.stringify(video.ai_metadata, null, 2)}
-                    </pre>
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Transcript Tab */}
-              <TabsContent value="transcript" className="flex-1 p-6">
-                <div className="space-y-4">
-                  <h4 className="font-semibold">Transcript</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Transcript feature coming soon. This will display time-coded transcript segments.
-                  </p>
-                </div>
-              </TabsContent>
+          {/* Scenes Tab */}
+          <TabsContent value="scenes" className="flex-1 p-6 overflow-y-auto">
+            <ScenesPanel video={video} videoRef={videoRef} />
+          </TabsContent>
 
               {/* Review Tab */}
               {canAccessCodeRed && (
