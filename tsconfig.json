@@ -1,7 +1,7 @@
-﻿{
+{
   "files": [],
   "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
-  "compilerOptions": { "lib": ["ES2020","DOM"],
+  "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
@@ -14,4 +14,3 @@
     "strictNullChecks": false
   }
 }
-

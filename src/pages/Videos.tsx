@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Edit3, FileVideo, Grid, List, Loader2 } from "lucide-react";
+import { Edit3, FileVideo } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Grid, List, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -32,7 +33,7 @@ export default function Videos() {
   const [sortBy, setSortBy] = useState("date-desc");
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
   const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
-  const itemsPerPage = 12;
+  const itemsPerPage = 12; // Adjusted for better pagination visibility
 
   useEffect(() => {
     loadVideos();
@@ -114,7 +115,7 @@ export default function Videos() {
       toast.success(`Opening in ${software}...`, {
         description: "Download the video and open it in your editing software.",
       });
-
+      
       if (selectedVideo.file_url) {
         window.open(selectedVideo.file_url, "_blank");
       }
@@ -129,6 +130,7 @@ export default function Videos() {
   const filterAndSortVideos = () => {
     let result = [...videos];
 
+    // Apply date range filter
     if (dateRange.from || dateRange.to) {
       result = result.filter(video => {
         const videoDate = new Date(video.created_at);
@@ -138,6 +140,7 @@ export default function Videos() {
       });
     }
 
+    // Apply people filter
     if (selectedPeople.length > 0) {
       result = result.filter(video => {
         const detectedPeople = video.ai_metadata?.detected_people || [];
@@ -145,6 +148,7 @@ export default function Videos() {
       });
     }
 
+    // Apply sorting
     result.sort((a, b) => {
       switch (sortBy) {
         case "date-desc":
@@ -172,10 +176,14 @@ export default function Videos() {
     setCurrentPage(1);
   };
 
+  // Get unique people from all videos
   const availablePeople = Array.from(
-    new Set(videos.flatMap(v => v.ai_metadata?.detected_people || []))
+    new Set(
+      videos.flatMap(v => v.ai_metadata?.detected_people || [])
+    )
   ).sort();
 
+  // Pagination
   const totalPages = Math.ceil(filteredVideos.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedVideos = filteredVideos.slice(startIndex, startIndex + itemsPerPage);
@@ -183,7 +191,7 @@ export default function Videos() {
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const showPages = 5;
-
+    
     if (totalPages <= showPages + 2) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
@@ -260,25 +268,26 @@ export default function Videos() {
           {filteredVideos.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
-                {videos.length === 0
-                  ? "No videos found. Upload your first video to get started."
+                {videos.length === 0 
+                  ? "No videos found. Upload your first video to get started." 
                   : "No videos match your filters. Try adjusting your search criteria."}
               </p>
             </div>
           ) : (
-            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
-              {paginatedVideos.map((video, index) => (
-                <motion.div
+            <>
+              <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "space-y-4"}>
+                {paginatedVideos.map((video, index) => (
+                <motion.div 
                   key={video.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  onClick={() => navigate(`/videos/${video.id}`)} // <-- opens new VideoDetail page
+                  onClick={() => navigate(`/videos/${video.id}`)} 
                   className="group cursor-pointer"
                 >
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-muted border border-border shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <img
-                      src={video.thumbnail}
+                    <img 
+                      src={video.thumbnail} 
                       alt={video.title}
                       loading="lazy"
                       width="160"
@@ -295,7 +304,7 @@ export default function Videos() {
                           <path d="M8 5v14l11-7z" />
                         </svg>
                       </div>
-                      <Button
+                      <Button 
                         size="icon"
                         variant="secondary"
                         className="h-12 w-12 rounded-full shadow-lg"
@@ -321,43 +330,45 @@ export default function Videos() {
                   </div>
                 </motion.div>
               ))}
-            </div>
-          )}
+              </div>
 
-          {totalPages > 1 && (
-            <Pagination className="mt-8">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Pagination className="mt-8">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    
+                    {getPageNumbers().map((pageNum, idx) => (
+                      <PaginationItem key={idx}>
+                        {pageNum === "ellipsis" ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            onClick={() => setCurrentPage(pageNum as number)}
+                            isActive={currentPage === pageNum}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
 
-                {getPageNumbers().map((pageNum, idx) => (
-                  <PaginationItem key={idx}>
-                    {pageNum === "ellipsis" ? (
-                      <PaginationEllipsis />
-                    ) : (
-                      <PaginationLink
-                        onClick={() => setCurrentPage(pageNum as number)}
-                        isActive={currentPage === pageNum}
-                        className="cursor-pointer"
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    )}
-                  </PaginationItem>
-                ))}
-
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -374,7 +385,7 @@ export default function Videos() {
               Select your preferred editing software to open and edit this video.
             </DialogDescription>
           </DialogHeader>
-
+          
           <div className="space-y-3 mt-4">
             <Button
               variant="outline"
@@ -389,7 +400,7 @@ export default function Videos() {
                 <p className="text-xs text-muted-foreground">Professional video editing</p>
               </div>
             </Button>
-
+            
             <Button
               variant="outline"
               className="w-full justify-start gap-3 h-auto py-3"
@@ -403,7 +414,7 @@ export default function Videos() {
                 <p className="text-xs text-muted-foreground">Mac video editing suite</p>
               </div>
             </Button>
-
+            
             <Button
               variant="outline"
               className="w-full justify-start gap-3 h-auto py-3"

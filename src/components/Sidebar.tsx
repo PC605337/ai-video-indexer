@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -28,17 +28,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useUserRole } from "@/hooks/useUserRole";
 
-// Base menu items visible to all roles
-const baseMenuItems = [
+const menuItems = [
   { icon: Search, label: "Video", path: "/explorer" },
   { icon: Image, label: "Photos", path: "/photos" },
   { icon: FolderOpen, label: "Collections", path: "/collections" },
-];
-
-// Additional menu items for contributors and above
-const advancedMenuItems = [
   { icon: Mic, label: "Speech-to-Text", path: "/speech-to-text" },
   { icon: Volume2, label: "Text-to-Speech", path: "/text-to-speech" },
 ];
@@ -69,25 +63,6 @@ export const Sidebar = () => {
   const [analyticsOpen, setAnalyticsOpen] = useState(true);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
-  const { permissions } = useUserRole();
-
-  // Reset collapsible states when permissions change
-  useEffect(() => {
-    if (!permissions.canUpload) {
-      setUploadOpen(false);
-    }
-    if (!permissions.canViewAnalytics) {
-      setAnalyticsOpen(false);
-    }
-    if (!permissions.canViewAdministration) {
-      setAdminOpen(false);
-    }
-  }, [permissions]);
-
-  // Build menu items based on permissions
-  const menuItems = permissions.canViewAdvancedFeatures 
-    ? [...baseMenuItems, ...advancedMenuItems]
-    : baseMenuItems;
 
   const shouldExpand = open || isHovering;
   const isAnalyticsActive = analyticsItems.some(item => location.pathname === item.path);
@@ -143,7 +118,7 @@ export const Sidebar = () => {
           })}
 
           {/* Upload Collapsible */}
-          {permissions.canUpload && shouldExpand ? (
+          {shouldExpand ? (
             <Collapsible open={uploadOpen} onOpenChange={setUploadOpen}>
               <CollapsibleTrigger asChild>
                 <button
@@ -187,7 +162,7 @@ export const Sidebar = () => {
                 })}
               </CollapsibleContent>
             </Collapsible>
-          ) : permissions.canUpload && !shouldExpand ? (
+          ) : (
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <button
@@ -206,10 +181,10 @@ export const Sidebar = () => {
                 Upload
               </TooltipContent>
             </Tooltip>
-          ) : null}
+          )}
 
           {/* Platform Analytics Collapsible */}
-          {permissions.canViewAnalytics && shouldExpand ? (
+          {shouldExpand ? (
             <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
               <CollapsibleTrigger asChild>
                 <button
@@ -253,7 +228,7 @@ export const Sidebar = () => {
                 })}
               </CollapsibleContent>
             </Collapsible>
-          ) : permissions.canViewAnalytics && !shouldExpand ? (
+          ) : (
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <button
@@ -272,10 +247,10 @@ export const Sidebar = () => {
                 Platform Analytics
               </TooltipContent>
             </Tooltip>
-          ) : null}
+          )}
 
           {/* Platform Administration Collapsible */}
-          {permissions.canViewAdministration && shouldExpand ? (
+          {shouldExpand ? (
             <Collapsible open={adminOpen} onOpenChange={setAdminOpen}>
               <CollapsibleTrigger asChild>
                 <button
@@ -319,7 +294,7 @@ export const Sidebar = () => {
                 })}
               </CollapsibleContent>
             </Collapsible>
-          ) : permissions.canViewAdministration && !shouldExpand ? (
+          ) : (
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <button
@@ -338,7 +313,7 @@ export const Sidebar = () => {
                 Platform Administration
               </TooltipContent>
             </Tooltip>
-          ) : null}
+          )}
         </nav>
 
 
