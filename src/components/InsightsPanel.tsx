@@ -1,218 +1,234 @@
-import { Users, Tag, Sparkles, Eye, Package, Type } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Tag, Package, Type, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { FaceThumbnail } from "@/components/FaceThumbnail";
+import { FaceThumbnail } from "./FaceThumbnail";
+import { useState } from "react";
 
 interface InsightsPanelProps {
   video: any;
-  hoverTime: number | null;
+  videoRef: React.RefObject<HTMLVideoElement>;
 }
 
-export const InsightsPanel = ({ video, hoverTime }: InsightsPanelProps) => {
-  return (
-    <div className="space-y-4">
-      {/* Video Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{video.title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {video.description && (
-            <p className="text-sm text-muted-foreground mb-4">{video.description}</p>
-          )}
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Duration:</span>
-              <span className="ml-2 font-medium">
-                {video.duration ? `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}` : 'N/A'}
-              </span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Size:</span>
-              <span className="ml-2 font-medium">
-                {video.file_size ? `${(video.file_size / 1024 / 1024).toFixed(2)} MB` : 'N/A'}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+export const InsightsPanel = ({ video, videoRef }: InsightsPanelProps) => {
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    people: true,
+    topics: true,
+    keywords: true,
+    labels: true,
+    entities: true,
+  });
 
-      {/* AI Insights at Hover Time */}
-      {hoverTime !== null && video.ai_metadata?.frames && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              Insights at {Math.floor(hoverTime / 60)}:{Math.floor(hoverTime % 60).toString().padStart(2, '0')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="text-xs overflow-x-auto text-muted-foreground whitespace-pre-wrap">
-              {JSON.stringify(video.ai_metadata.frames[Math.floor(hoverTime)] || {}, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const detectedPeople = video.ai_metadata?.detected_people || [];
+  const topics = video.ai_metadata?.topics || [];
+  const keywords = video.tags || video.ai_metadata?.keywords || [];
+  const labels = video.ai_metadata?.detected_objects || video.ai_metadata?.labels || [];
+  const entities = video.ai_metadata?.entities || [];
+
+  const handleTimelineClick = (time: number) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+    }
+  };
+
+  const renderTimeline = (appearances: any[]) => {
+    if (!appearances || appearances.length === 0) return null;
+    const duration = video.duration || 100;
+    
+    return (
+      <div className="flex gap-1 mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
+        {appearances.map((appearance: any, i: number) => {
+          const start = ((appearance.start || 0) / duration) * 100;
+          const width = (((appearance.end || appearance.start || 0) - (appearance.start || 0)) / duration) * 100;
+          return (
+            <div
+              key={i}
+              className="h-full bg-primary cursor-pointer hover:bg-primary/80"
+              style={{
+                marginLeft: `${start}%`,
+                width: `${Math.max(width, 0.5)}%`,
+              }}
+              onClick={() => handleTimelineClick(appearance.start || 0)}
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
+  const CollapsibleSection = ({ 
+    title, 
+    count, 
+    icon: Icon, 
+    sectionKey, 
+    children 
+  }: { 
+    title: string; 
+    count: number; 
+    icon: any; 
+    sectionKey: string; 
+    children: React.ReactNode 
+  }) => (
+    <div className="border-b border-border">
+      <button
+        onClick={() => toggleSection(sectionKey)}
+        className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium text-sm">
+            {count} {title}
+          </span>
+        </div>
+        {expandedSections[sectionKey] ? (
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        )}
+      </button>
+      {expandedSections[sectionKey] && (
+        <div className="px-4 pb-4">
+          {children}
+        </div>
       )}
+    </div>
+  );
 
-      {/* Detected People */}
-      {video.ai_metadata?.detected_people && video.ai_metadata.detected_people.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Detected People ({video.ai_metadata.detected_people.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              {video.ai_metadata.detected_people.map((person: any, i: number) => (
-                <div key={i} className="flex items-center gap-2 p-2 rounded-md border bg-card">
+  return (
+    <div className="divide-y divide-border">
+      {/* People Section */}
+      {detectedPeople.length > 0 && (
+        <CollapsibleSection
+          title="people"
+          count={detectedPeople.length}
+          icon={Users}
+          sectionKey="people"
+        >
+          <div className="space-y-4">
+            {/* People avatars row */}
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {detectedPeople.slice(0, 10).map((person: any, i: number) => (
+                <FaceThumbnail 
+                  key={i} 
+                  name={typeof person === 'string' ? person : person.name}
+                  photoUrl={typeof person === 'object' ? person.thumbnail : undefined}
+                  size="sm" 
+                />
+              ))}
+            </div>
+            
+            {/* Detailed people list */}
+            {detectedPeople.map((person: any, i: number) => (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center gap-2">
                   <FaceThumbnail 
                     name={typeof person === 'string' ? person : person.name}
                     photoUrl={typeof person === 'object' ? person.thumbnail : undefined}
-                    size="sm"
+                    size="sm" 
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {typeof person === 'string' ? person : person.name}
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {typeof person === 'string' ? person : person.name || `Person ${i + 1}`}
                     </p>
                     {typeof person === 'object' && person.appearances && (
                       <p className="text-xs text-muted-foreground">
-                        {person.appearances} appearances
+                        Appears in {Array.isArray(person.appearances) ? person.appearances.length : person.appearances} segment{person.appearances !== 1 ? 's' : ''}
                       </p>
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                {typeof person === 'object' && person.appearances && Array.isArray(person.appearances) && renderTimeline(person.appearances)}
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
       )}
 
-      {/* Keywords & Topics */}
-      {video.ai_metadata?.keywords && video.ai_metadata.keywords.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Tag className="h-4 w-4" />
-              Keywords & Topics
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {video.ai_metadata.keywords.map((keyword: any, i: number) => (
-                <Badge key={i} variant="secondary">
-                  {typeof keyword === 'string' ? keyword : keyword.text}
-                  {typeof keyword === 'object' && keyword.confidence && (
-                    <span className="ml-1 text-xs opacity-70">
-                      {Math.round(keyword.confidence * 100)}%
-                    </span>
-                  )}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Detected Objects */}
-      {video.ai_metadata?.detected_objects && video.ai_metadata.detected_objects.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Eye className="h-4 w-4" />
-              Detected Objects
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {video.ai_metadata.detected_objects.map((object: string, i: number) => (
-                <Badge key={i} variant="outline">
-                  {object}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Brands & Logos */}
-      {video.ai_metadata?.brands && video.ai_metadata.brands.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Brands & Logos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {video.ai_metadata.brands.map((brand: any, i: number) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded-md bg-muted">
-                  <span className="text-sm font-medium">{brand.name}</span>
-                  {brand.confidence && (
-                    <Badge variant="secondary" className="text-xs">
-                      {Math.round(brand.confidence * 100)}%
-                    </Badge>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* OCR Text */}
-      {video.ai_metadata?.ocr_text && video.ai_metadata.ocr_text.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Type className="h-4 w-4" />
-              Extracted Text (OCR)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {video.ai_metadata.ocr_text.map((text: any, i: number) => (
-                <div key={i} className="p-2 rounded-md border bg-card text-sm">
-                  <div className="flex items-center justify-between mb-1">
+      {/* Topics Section */}
+      {topics.length > 0 && (
+        <CollapsibleSection
+          title="topics"
+          count={topics.length}
+          icon={Tag}
+          sectionKey="topics"
+        >
+          <div className="space-y-3">
+            {topics.map((topic: any, i: number) => (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="secondary" className="text-xs">
+                    {topic.name || topic.label || topic}
+                  </Badge>
+                  {topic.confidence && (
                     <span className="text-xs text-muted-foreground">
-                      {text.timestamp ? `${Math.floor(text.timestamp)}s` : `Entry ${i + 1}`}
+                      {Math.round(topic.confidence * 100)}%
                     </span>
-                    {text.confidence && (
-                      <span className="text-xs text-muted-foreground">
-                        {Math.round(text.confidence * 100)}%
-                      </span>
-                    )}
-                  </div>
-                  <p>{typeof text === 'string' ? text : text.text}</p>
+                  )}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                {topic.appearances && renderTimeline(topic.appearances)}
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
       )}
 
-      {/* Tags */}
-      {video.tags && video.tags.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Tag className="h-4 w-4" />
-              Tags
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {video.tags.map((tag: string, i: number) => (
-                <Badge key={i} variant="default">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Keywords Section */}
+      {keywords.length > 0 && (
+        <CollapsibleSection
+          title="keywords"
+          count={keywords.length}
+          icon={Tag}
+          sectionKey="keywords"
+        >
+          <div className="flex flex-wrap gap-2">
+            {keywords.map((keyword: string | any, i: number) => (
+              <Badge key={i} variant="outline" className="text-xs">
+                {typeof keyword === 'string' ? keyword : keyword.name || keyword.label || keyword.text}
+              </Badge>
+            ))}
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {/* Labels Section */}
+      {labels.length > 0 && (
+        <CollapsibleSection
+          title="labels"
+          count={labels.length}
+          icon={Package}
+          sectionKey="labels"
+        >
+          <div className="flex flex-wrap gap-2">
+            {labels.map((label: any, i: number) => (
+              <Badge key={i} variant="secondary" className="text-xs">
+                {typeof label === 'string' ? label : label.name || label.label}
+              </Badge>
+            ))}
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {/* Named Entities Section */}
+      {entities.length > 0 && (
+        <CollapsibleSection
+          title="named entities"
+          count={entities.length}
+          icon={Type}
+          sectionKey="entities"
+        >
+          <div className="space-y-2">
+            {entities.map((entity: any, i: number) => (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <Badge variant="outline">{entity.name || entity.text}</Badge>
+                {entity.type && (
+                  <span className="text-muted-foreground">{entity.type}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
       )}
     </div>
   );

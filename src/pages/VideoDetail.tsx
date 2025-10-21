@@ -148,7 +148,7 @@ export default function VideoDetail() {
 
         <div className="min-h-screen flex bg-background">
           {/* Left Panel - Static Video Player + Timeline + Controls */}
-          <div className="w-[60%] flex flex-col items-center bg-black flex-shrink-0 px-6 pb-6">
+          <div className="w-[65%] flex flex-col items-center bg-black flex-shrink-0 px-6 pb-6">
             <CodeRedAccess assetId={video.id} classification={video.classification} />
 
             {/* Video Player */}
@@ -261,45 +261,39 @@ export default function VideoDetail() {
             )}
           </div>
 
-          {/* Right Panel - Scrollable Insights / Review / Transcript */}
-          <div className="w-[40%] h-screen overflow-y-auto bg-card flex flex-col">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <div className="flex items-center justify-between border-b px-4 py-2 bg-background flex-shrink-0">
-              <TabsList className="bg-background">
-                <TabsTrigger value="insights">Insights</TabsTrigger>
-                <TabsTrigger value="transcript">Transcript</TabsTrigger>
-                <TabsTrigger value="sentiment">Sentiment</TabsTrigger>
-                <TabsTrigger value="scenes">Scenes</TabsTrigger>
-                {canAccessCodeRed && (
-                  <TabsTrigger value="review">Review</TabsTrigger>
-                )}
-              </TabsList>
+          {/* Right Panel - Insights Sidebar */}
+          <div className="w-[35%] h-screen overflow-y-auto bg-card border-l">
+            <div className="flex items-center justify-between border-b px-4 py-3 bg-background sticky top-0 z-10">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
+                <TabsList className="bg-muted/50">
+                  <TabsTrigger value="insights">Insights</TabsTrigger>
+                  <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                  {canAccessCodeRed && (
+                    <TabsTrigger value="review">Review</TabsTrigger>
+                  )}
+                </TabsList>
+              </Tabs>
               <ExportDialog video={video} />
             </div>
 
-          {/* Insights Tab */}
-          <TabsContent value="insights" className="flex-1 p-6 space-y-4 overflow-y-auto">
-            <InsightsPanel video={video} hoverTime={hoverTime} />
-          </TabsContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              {/* Insights Tab - Azure Style */}
+              <TabsContent value="insights" className="mt-0">
+                <InsightsPanel video={video} videoRef={videoRef} />
+              </TabsContent>
 
-          {/* Transcript Tab */}
-          <TabsContent value="transcript" className="flex-1 p-6 overflow-y-auto">
-            <TranscriptPanel videoId={video.id} videoRef={videoRef} />
-          </TabsContent>
-
-          {/* Sentiment Tab */}
-          <TabsContent value="sentiment" className="flex-1 p-6 overflow-y-auto">
-            <SentimentPanel video={video} />
-          </TabsContent>
-
-          {/* Scenes Tab */}
-          <TabsContent value="scenes" className="flex-1 p-6 overflow-y-auto">
-            <ScenesPanel video={video} videoRef={videoRef} />
-          </TabsContent>
+              {/* Timeline Tab - Transcript, Sentiment, Scenes */}
+              <TabsContent value="timeline" className="mt-0">
+                <div className="space-y-4 p-4">
+                  <TranscriptPanel videoId={video.id} videoRef={videoRef} />
+                  <SentimentPanel video={video} />
+                  <ScenesPanel video={video} videoRef={videoRef} />
+                </div>
+              </TabsContent>
 
               {/* Review Tab */}
               {canAccessCodeRed && (
-                <TabsContent value="review" className="flex-1 p-6 space-y-4">
+                <TabsContent value="review" className="mt-0 p-4 space-y-4">
                   <ApprovalWorkflow
                     assetId={video.id}
                     currentStatus="pending"
