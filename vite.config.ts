@@ -6,8 +6,11 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
+      "@": path.resolve(__dirname, "src"),
       src: path.resolve(__dirname, "src"),
-      "@supabase/supabase-js": path.resolve(__dirname, "src/lib/backend"),
-    }
-  }
+    },
+  },
+  server: {
+    port: 8080,
+  },
 });
