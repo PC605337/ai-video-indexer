@@ -46,7 +46,11 @@ export const TranscriptPanel = ({ videoId, videoRef }: TranscriptPanelProps) => 
       if (error) throw error;
 
       if (data && data.segments) {
-        setSegments(data.segments as TranscriptSegment[]);
+        // Type guard to ensure segments is an array
+        const rawSegments = data.segments;
+        if (Array.isArray(rawSegments)) {
+          setSegments(rawSegments as unknown as TranscriptSegment[]);
+        }
       }
     } catch (error) {
       console.error("Error loading transcript:", error);
