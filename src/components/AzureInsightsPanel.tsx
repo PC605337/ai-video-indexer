@@ -1,4 +1,4 @@
-import { Users, Tag, FileText, Sparkles, Heart, ChevronDown } from "lucide-react";
+import { Users, Tag, FileText, Sparkles, Heart, ChevronDown, Volume2, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
@@ -65,6 +65,18 @@ interface Emotion {
   instances: TimeInstance[];
 }
 
+interface AudioEffect {
+  name: string;
+  instances: TimeInstance[];
+}
+
+interface Entity {
+  name: string;
+  type: string;
+  count: number;
+  instances?: TimeInstance[];
+}
+
 interface AzureInsightsPanelProps {
   people?: Person[];
   topics?: Topic[];
@@ -72,6 +84,8 @@ interface AzureInsightsPanelProps {
   labels?: Label[];
   brands?: Brand[];
   emotions?: Emotion[];
+  audioEffects?: AudioEffect[];
+  entities?: Entity[];
   onTimeClick?: (timeInSeconds: number) => void;
 }
 
@@ -111,6 +125,8 @@ export const AzureInsightsPanel = ({
   labels = [],
   brands = [],
   emotions = [],
+  audioEffects = [],
+  entities = [],
   onTimeClick,
 }: AzureInsightsPanelProps) => {
   const handleInstanceClick = (time: string) => {
@@ -122,7 +138,7 @@ export const AzureInsightsPanel = ({
 
   return (
     <div className="space-y-2">
-      <Accordion type="multiple" defaultValue={["people", "topics", "keywords", "labels", "brands", "emotions"]} className="space-y-2">
+      <Accordion type="multiple" defaultValue={["people", "topics", "audioEffects", "keywords", "labels", "brands", "entities", "emotions"]} className="space-y-2">
         {/* People / Observed Section */}
         {people.length > 0 && (
           <AccordionItem value="people" className="border rounded-lg bg-card">
@@ -385,6 +401,48 @@ export const AzureInsightsPanel = ({
           </AccordionItem>
         )}
 
+        {/* Audio Effects Section */}
+        {audioEffects.length > 0 && (
+          <AccordionItem value="audioEffects" className="border rounded-lg bg-card">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/10">
+                  <Volume2 className="h-4 w-4 text-cyan-500" />
+                </div>
+                <span className="font-semibold text-sm">Audio Effects</span>
+                <Badge variant="secondary" className="ml-auto mr-2">{audioEffects.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <div className="space-y-2 mt-2">
+                {audioEffects.map((effect, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-secondary/30">
+                      <span className="font-medium text-sm">{effect.name}</span>
+                      <span className="text-xs text-muted-foreground">{effect.instances.length} instances</span>
+                    </div>
+                    {/* Time Instances */}
+                    {effect.instances && effect.instances.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {effect.instances.map((instance, i) => (
+                          <Badge 
+                            key={i} 
+                            variant="outline" 
+                            className="cursor-pointer hover:bg-cyan-500 hover:text-white transition-colors text-xs font-mono px-2 py-0.5"
+                            onClick={() => handleInstanceClick(instance.start)}
+                          >
+                            {formatTime(instance.start)} - {formatTime(instance.end)}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
         {/* Emotions Section */}
         {emotions.length > 0 && (
           <AccordionItem value="emotions" className="border rounded-lg bg-card">
@@ -418,6 +476,51 @@ export const AzureInsightsPanel = ({
                             onClick={() => handleInstanceClick(instance.start)}
                           >
                             {formatTime(instance.start)} - {formatTime(instance.end)}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Named Entities Section */}
+        {entities.length > 0 && (
+          <AccordionItem value="entities" className="border rounded-lg bg-card">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-teal-500/10">
+                  <Building2 className="h-4 w-4 text-teal-500" />
+                </div>
+                <span className="font-semibold text-sm">Named Entities</span>
+                <Badge variant="secondary" className="ml-auto mr-2">{entities.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <div className="space-y-3 mt-2">
+                {entities.map((entity, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <span className="font-medium text-sm">{entity.name}</span>
+                        <Badge variant="outline" className="ml-2 text-xs">{entity.type}</Badge>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{entity.count} mentions</span>
+                    </div>
+                    {/* Time Instances */}
+                    {entity.instances && entity.instances.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {entity.instances.map((instance, i) => (
+                          <Badge 
+                            key={i} 
+                            variant="outline" 
+                            className="cursor-pointer hover:bg-teal-500 hover:text-white transition-colors text-xs font-mono px-2 py-0.5"
+                            onClick={() => handleInstanceClick(instance.start)}
+                          >
+                            {formatTime(instance.start)}
                           </Badge>
                         ))}
                       </div>

@@ -210,6 +210,16 @@ const VideoDetail = () => {
       : [
           { name: "Lexus", confidence: 99, appearances: 67 },
         ],
+    audioEffects: [
+      { name: "Music", instances: [{ start: "0:00:12", end: "0:02:45" }] },
+      { name: "Speech", instances: [{ start: "0:00:00", end: "0:05:30" }] },
+    ],
+    entities: [
+      { name: "Lexus ES 2025", type: "Product", count: 23 },
+      { name: "Toyota Motor Corporation", type: "Organization", count: 12 },
+      { name: "North America", type: "Location", count: 8 },
+      { name: "Hybrid Technology", type: "Technology", count: 15 },
+    ],
   } : {
     topics: [
       { name: "Vehicle Features", confidence: 95, duration: "3:45", count: 12 },
@@ -238,6 +248,18 @@ const VideoDetail = () => {
     brands: [
       { name: "Lexus", confidence: 99, appearances: 67 },
       { name: "Toyota", confidence: 97, appearances: 45 },
+    ],
+    audioEffects: [
+      { name: "Music", instances: [{ start: "0:00:12", end: "0:02:45" }] },
+      { name: "Speech", instances: [{ start: "0:00:00", end: "0:05:30" }] },
+    ],
+    entities: [
+      { name: "Lexus ES 2025", type: "Product", count: 23 },
+      { name: "Toyota Motor Corporation", type: "Organization", count: 12 },
+      { name: "North America", type: "Location", count: 8 },
+      { name: "Hybrid Technology", type: "Technology", count: 15 },
+      { name: "John Smith", type: "Person", count: 6 },
+      { name: "Sarah Johnson", type: "Person", count: 4 },
     ],
   };
 
@@ -715,6 +737,8 @@ const VideoDetail = () => {
                     keywords={insights.keywords}
                     labels={insights.labels}
                     brands={insights.brands}
+                    audioEffects={insights.audioEffects}
+                    entities={insights.entities}
                     onTimeClick={handleTimeframeClick}
                   />
                 </div>
