@@ -24,6 +24,7 @@ import { FilePathTraceability } from "@/components/FilePathTraceability";
 import { CaptionControls } from "@/components/CaptionControls";
 import { VideoTimeline } from "@/components/VideoTimeline";
 import { ApprovalWorkflow } from "@/components/ApprovalWorkflow";
+import { AzureInsightsPanel } from "@/components/AzureInsightsPanel";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -707,150 +708,15 @@ const VideoDetail = () => {
                     </>
                   )}
 
-                  {/* People Section */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <Users className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold text-lg">People</h3>
-                      <Badge variant="secondary">{peopleData.length}</Badge>
-                    </div>
-                    <div className="space-y-3">
-                      {peopleData.map((person) => (
-                        <Card key={person.id} className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
-                          <div className="flex items-start gap-3">
-                            <Avatar className="h-14 w-14 border-2 border-primary/20">
-                              <AvatarImage src={person.thumbnail} alt={person.name} />
-                              <AvatarFallback className="bg-primary/10">
-                                {person.name.split(" ").map(n => n[0]).join("")}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold">{person.name}</p>
-                              <p className="text-sm text-muted-foreground">{person.role}</p>
-                              <p className="text-xs text-muted-foreground">{person.company}</p>
-                              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {person.duration}
-                                </span>
-                                <span>{person.appearances} appearances</span>
-                              </div>
-                              <div className="flex flex-wrap gap-1.5 mt-2">
-                                {person.timestamps.map((ts, i) => (
-                                  <Badge 
-                                    key={i} 
-                                    variant="outline" 
-                                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs font-mono"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const [mins, secs] = ts.split(':').map(Number);
-                                      handleTimeframeClick((mins * 60) + secs);
-                                    }}
-                                  >
-                                    {ts}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Topics Section */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <Tag className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold text-lg">Topics</h3>
-                      <Badge variant="secondary">{insights.topics.length}</Badge>
-                    </div>
-                    <div className="space-y-3">
-                      {insights.topics.map((topic, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className="font-medium">{topic.name}</p>
-                              <p className="text-xs text-muted-foreground">{topic.count} mentions • {topic.duration}</p>
-                            </div>
-                            <Badge variant="outline" className="ml-2">{topic.confidence}%</Badge>
-                          </div>
-                          <Progress value={topic.confidence} className="h-1.5" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Keywords Section */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <Tag className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold text-lg">Keywords</h3>
-                      <Badge variant="secondary">{insights.keywords.length}</Badge>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {insights.keywords.map((keyword, index) => (
-                        <Badge 
-                          key={index} 
-                          variant="secondary" 
-                          className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                        >
-                          {keyword.word} <span className="ml-1 text-xs opacity-70">({keyword.count})</span>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Labels Section */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <Tag className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold text-lg">Labels</h3>
-                      <Badge variant="secondary">{insights.labels.length}</Badge>
-                    </div>
-                    <div className="space-y-3">
-                      {insights.labels.map((label, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">{label.name}</span>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <span className="text-xs">{label.instances} instances</span>
-                              <Badge variant="outline">{label.confidence}%</Badge>
-                            </div>
-                          </div>
-                          <Progress value={label.confidence} className="h-1.5" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Brands Section */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <Tag className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold text-lg">Brands</h3>
-                      <Badge variant="secondary">{insights.brands.length}</Badge>
-                    </div>
-                    <div className="space-y-2">
-                      {insights.brands.map((brand, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30">
-                          <span className="font-medium">{brand.name}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">{brand.appearances} appearances</span>
-                            <Badge variant="outline">{brand.confidence}%</Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Azure-Style Collapsible Insights */}
+                  <AzureInsightsPanel
+                    people={peopleData}
+                    topics={insights.topics}
+                    keywords={insights.keywords}
+                    labels={insights.labels}
+                    brands={insights.brands}
+                    onTimeClick={handleTimeframeClick}
+                  />
                 </div>
               </ScrollArea>
             </TabsContent>
