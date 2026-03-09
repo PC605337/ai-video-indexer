@@ -1,0 +1,64 @@
+Toyota AI Video Indexer — Theme Color Tokens
+=============================================
+
+Token                          | Dark (current)       | Light (proposed)     | System
+-------------------------------|----------------------|----------------------|-------------------
+BACKGROUNDS
+--background                   | 240 7% 11%           | 0 0% 98%             | Inherits Dark/Light
+--foreground                   | 0 0% 100%            | 240 7% 11%           | Inherits Dark/Light
+--card                         | 240 7% 8%            | 0 0% 100%            | Inherits
+--card-foreground              | 0 0% 100%            | 240 7% 11%           | Inherits
+--popover                      | 240 7% 8%            | 0 0% 100%            | Inherits
+--popover-foreground           | 0 0% 100%            | 240 7% 11%           | Inherits
+
+BRAND / PRIMARY
+--primary                      | 355 92% 48%          | 355 92% 48%          | Same (brand red)
+--primary-foreground           | 0 0% 100%            | 0 0% 100%            | Same
+
+SECONDARY
+--secondary                    | 240 7% 15%           | 240 5% 92%           | Inherits
+--secondary-foreground         | 0 0% 100%            | 240 7% 15%           | Inherits
+
+MUTED
+--muted                        | 240 7% 15%           | 240 5% 94%           | Inherits
+--muted-foreground             | 0 2% 71%             | 240 4% 46%           | Inherits
+
+ACCENT
+--accent                       | 180 100% 50%         | 180 100% 35%         | Inherits
+--accent-foreground            | 0 0% 0%              | 0 0% 100%            | Inherits
+
+DESTRUCTIVE
+--destructive                  | 348 100% 54%         | 348 100% 45%         | Inherits
+--destructive-foreground       | 0 0% 100%            | 0 0% 100%            | Same
+
+BORDERS / INPUT
+--border                       | 240 7% 20%           | 240 6% 85%           | Inherits
+--input                        | 240 7% 15%           | 240 6% 90%           | Inherits
+--ring                         | 355 92% 48%          | 355 92% 48%          | Same (brand red)
+
+WARNING
+--warning                      | 43 100% 50%          | 43 100% 42%          | Inherits
+--warning-foreground           | 0 0% 0%              | 0 0% 0%              | Same
+
+CHARTS
+--chart-1                      | 200 100% 50%         | 200 100% 40%         | Inherits
+--chart-2                      | 270 80% 60%          | 270 80% 50%          | Inherits
+--chart-3                      | 160 70% 50%          | 160 70% 38%          | Inherits
+--chart-4                      | 30 90% 55%           | 30 90% 45%           | Inherits
+--chart-5                      | 330 80% 60%          | 330 80% 50%          | Inherits
+
+SIDEBAR
+--sidebar-background           | 240 7% 8%            | 0 0% 97%             | Inherits
+--sidebar-foreground           | 0 0% 100%            | 240 7% 15%           | Inherits
+--sidebar-primary              | 355 92% 48%          | 355 92% 48%          | Same
+--sidebar-primary-foreground   | 0 0% 100%            | 0 0% 100%            | Same
+--sidebar-accent               | 240 7% 15%           | 240 5% 92%           | Inherits
+--sidebar-accent-foreground    | 0 0% 100%            | 240 7% 15%           | Inherits
+--sidebar-border               | 240 7% 20%           | 240 6% 85%           | Inherits
+--sidebar-ring                 | 355 92% 48%          | 355 92% 48%          | Same
+
+KEY DESIGN DECISIONS
+- Brand red (--primary) stays identical across all themes for consistency
+- Light mode flips bg/fg, lightens surfaces, and slightly darkens accent/chart colors for contrast on white
+- System mode = prefers-color-scheme media query, automatically picking Light or Dark
+- Glass effect in light mode uses hsl(0 0% 100% / 0.6) instead of the current dark glass
