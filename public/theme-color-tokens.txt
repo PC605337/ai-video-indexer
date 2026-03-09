@@ -1,61 +1,61 @@
 Toyota AI Video Indexer — Theme Color Tokens
 =============================================
 
-Token                          | Dark (current)       | Light (proposed)     | System
--------------------------------|----------------------|----------------------|-------------------
+Token                          | Dark (current)       | Dark HEX       | Light (proposed)     | Light HEX      | System
+-------------------------------|----------------------|----------------|----------------------|----------------|-------------------
 BACKGROUNDS
---background                   | 240 7% 11%           | 0 0% 98%             | Inherits Dark/Light
---foreground                   | 0 0% 100%            | 240 7% 11%           | Inherits Dark/Light
---card                         | 240 7% 8%            | 0 0% 100%            | Inherits
---card-foreground              | 0 0% 100%            | 240 7% 11%           | Inherits
---popover                      | 240 7% 8%            | 0 0% 100%            | Inherits
---popover-foreground           | 0 0% 100%            | 240 7% 11%           | Inherits
+--background                   | 240 7% 11%           | #1A1A1D        | 0 0% 98%             | #FAFAFA        | Inherits Dark/Light
+--foreground                   | 0 0% 100%            | #FFFFFF        | 240 7% 11%           | #1A1A1D        | Inherits Dark/Light
+--card                         | 240 7% 8%            | #131316        | 0 0% 100%            | #FFFFFF        | Inherits
+--card-foreground              | 0 0% 100%            | #FFFFFF        | 240 7% 11%           | #1A1A1D        | Inherits
+--popover                      | 240 7% 8%            | #131316        | 0 0% 100%            | #FFFFFF        | Inherits
+--popover-foreground           | 0 0% 100%            | #FFFFFF        | 240 7% 11%           | #1A1A1D        | Inherits
 
 BRAND / PRIMARY
---primary                      | 355 92% 48%          | 355 92% 48%          | Same (brand red)
---primary-foreground           | 0 0% 100%            | 0 0% 100%            | Same
+--primary                      | 355 92% 48%          | #EB0A1E        | 355 92% 48%          | #EB0A1E        | Same (brand red)
+--primary-foreground           | 0 0% 100%            | #FFFFFF        | 0 0% 100%            | #FFFFFF        | Same
 
 SECONDARY
---secondary                    | 240 7% 15%           | 240 5% 92%           | Inherits
---secondary-foreground         | 0 0% 100%            | 240 7% 15%           | Inherits
+--secondary                    | 240 7% 15%           | #232328        | 240 5% 92%           | #EAEAEC        | Inherits
+--secondary-foreground         | 0 0% 100%            | #FFFFFF        | 240 7% 15%           | #232328        | Inherits
 
 MUTED
---muted                        | 240 7% 15%           | 240 5% 94%           | Inherits
---muted-foreground             | 0 2% 71%             | 240 4% 46%           | Inherits
+--muted                        | 240 7% 15%           | #232328        | 240 5% 94%           | #EFEFF1        | Inherits
+--muted-foreground             | 0 2% 71%             | #B6B3B5        | 240 4% 46%           | #717179        | Inherits
 
 ACCENT
---accent                       | 180 100% 50%         | 180 100% 35%         | Inherits
---accent-foreground            | 0 0% 0%              | 0 0% 100%            | Inherits
+--accent                       | 180 100% 50%         | #00FFFF        | 180 100% 35%         | #00B3B3        | Inherits
+--accent-foreground            | 0 0% 0%              | #000000        | 0 0% 100%            | #FFFFFF        | Inherits
 
 DESTRUCTIVE
---destructive                  | 348 100% 54%         | 348 100% 45%         | Inherits
---destructive-foreground       | 0 0% 100%            | 0 0% 100%            | Same
+--destructive                  | 348 100% 54%         | #FF1443        | 348 100% 45%         | #E6003A        | Inherits
+--destructive-foreground       | 0 0% 100%            | #FFFFFF        | 0 0% 100%            | #FFFFFF        | Same
 
 BORDERS / INPUT
---border                       | 240 7% 20%           | 240 6% 85%           | Inherits
---input                        | 240 7% 15%           | 240 6% 90%           | Inherits
---ring                         | 355 92% 48%          | 355 92% 48%          | Same (brand red)
+--border                       | 240 7% 20%           | #2F2F36        | 240 6% 85%           | #D6D6DA        | Inherits
+--input                        | 240 7% 15%           | #232328        | 240 6% 90%           | #E4E4E8        | Inherits
+--ring                         | 355 92% 48%          | #EB0A1E        | 355 92% 48%          | #EB0A1E        | Same (brand red)
 
 WARNING
---warning                      | 43 100% 50%          | 43 100% 42%          | Inherits
---warning-foreground           | 0 0% 0%              | 0 0% 0%              | Same
+--warning                      | 43 100% 50%          | #FFB700        | 43 100% 42%          | #D69A00        | Inherits
+--warning-foreground           | 0 0% 0%              | #000000        | 0 0% 0%              | #000000        | Same
 
 CHARTS
---chart-1                      | 200 100% 50%         | 200 100% 40%         | Inherits
---chart-2                      | 270 80% 60%          | 270 80% 50%          | Inherits
---chart-3                      | 160 70% 50%          | 160 70% 38%          | Inherits
---chart-4                      | 30 90% 55%           | 30 90% 45%           | Inherits
---chart-5                      | 330 80% 60%          | 330 80% 50%          | Inherits
+--chart-1                      | 200 100% 50%         | #0099FF        | 200 100% 40%         | #007ACC        | Inherits
+--chart-2                      | 270 80% 60%          | #9933FF        | 270 80% 50%          | #7F00E6        | Inherits
+--chart-3                      | 160 70% 50%          | #26D98C        | 160 70% 38%          | #1DA56B        | Inherits
+--chart-4                      | 30 90% 55%           | #F5952E        | 30 90% 45%           | #DA7A13        | Inherits
+--chart-5                      | 330 80% 60%          | #EB3399        | 330 80% 50%          | #E6007A        | Inherits
 
 SIDEBAR
---sidebar-background           | 240 7% 8%            | 0 0% 97%             | Inherits
---sidebar-foreground           | 0 0% 100%            | 240 7% 15%           | Inherits
---sidebar-primary              | 355 92% 48%          | 355 92% 48%          | Same
---sidebar-primary-foreground   | 0 0% 100%            | 0 0% 100%            | Same
---sidebar-accent               | 240 7% 15%           | 240 5% 92%           | Inherits
---sidebar-accent-foreground    | 0 0% 100%            | 240 7% 15%           | Inherits
---sidebar-border               | 240 7% 20%           | 240 6% 85%           | Inherits
---sidebar-ring                 | 355 92% 48%          | 355 92% 48%          | Same
+--sidebar-background           | 240 7% 8%            | #131316        | 0 0% 97%             | #F7F7F7        | Inherits
+--sidebar-foreground           | 0 0% 100%            | #FFFFFF        | 240 7% 15%           | #232328        | Inherits
+--sidebar-primary              | 355 92% 48%          | #EB0A1E        | 355 92% 48%          | #EB0A1E        | Same
+--sidebar-primary-foreground   | 0 0% 100%            | #FFFFFF        | 0 0% 100%            | #FFFFFF        | Same
+--sidebar-accent               | 240 7% 15%           | #232328        | 240 5% 92%           | #EAEAEC        | Inherits
+--sidebar-accent-foreground    | 0 0% 100%            | #FFFFFF        | 240 7% 15%           | #232328        | Inherits
+--sidebar-border               | 240 7% 20%           | #2F2F36        | 240 6% 85%           | #D6D6DA        | Inherits
+--sidebar-ring                 | 355 92% 48%          | #EB0A1E        | 355 92% 48%          | #EB0A1E        | Same
 
 KEY DESIGN DECISIONS
 - Brand red (--primary) stays identical across all themes for consistency
