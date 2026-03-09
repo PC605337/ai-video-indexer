@@ -102,7 +102,7 @@ export type Database = {
           asset_id: string | null
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           metadata: Json | null
           user_agent: string | null
           user_id: string | null
@@ -112,7 +112,7 @@ export type Database = {
           asset_id?: string | null
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           user_agent?: string | null
           user_id?: string | null
@@ -122,7 +122,7 @@ export type Database = {
           asset_id?: string | null
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           user_agent?: string | null
           user_id?: string | null
@@ -214,6 +214,8 @@ export type Database = {
       }
       media_assets: {
         Row: {
+          ai_metadata: Json | null
+          ai_summary: string | null
           asset_type: Database["public"]["Enums"]["asset_type"]
           bounding_box_settings: Json | null
           checksum_sha256: string | null
@@ -248,6 +250,8 @@ export type Database = {
           width: number | null
         }
         Insert: {
+          ai_metadata?: Json | null
+          ai_summary?: string | null
           asset_type: Database["public"]["Enums"]["asset_type"]
           bounding_box_settings?: Json | null
           checksum_sha256?: string | null
@@ -282,6 +286,8 @@ export type Database = {
           width?: number | null
         }
         Update: {
+          ai_metadata?: Json | null
+          ai_summary?: string | null
           asset_type?: Database["public"]["Enums"]["asset_type"]
           bounding_box_settings?: Json | null
           checksum_sha256?: string | null
